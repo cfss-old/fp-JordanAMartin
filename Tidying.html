@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Statistical Analysis</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/spacelab.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 52px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 57px;
+  margin-top: -57px;
+}
+
+.section h2 {
+  padding-top: 57px;
+  margin-top: -57px;
+}
+.section h3 {
+  padding-top: 57px;
+  margin-top: -57px;
+}
+.section h4 {
+  padding-top: 57px;
+  margin-top: -57px;
+}
+.section h5 {
+  padding-top: 57px;
+  margin-top: -57px;
+}
+.section h6 {
+  padding-top: 57px;
+  margin-top: -57px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Infant Social Cognition</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Study Overview</a>
+</li>
+<li>
+  <a href="Tidying.html">Data Wrangling</a>
+</li>
+<li>
+  <a href="Stats.html">Results</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Statistical Analysis</h1>
+
+</div>
+
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(readxl)
+<span class="kw">library</span>(tidyverse)
+AOIfix06_10 &lt;-<span class="st"> </span><span class="kw">read_excel</span>(<span class="st">&quot;data/AOI_Hits06-10.xlsx&quot;</span>)
+AOIfix11_36 &lt;-<span class="st"> </span><span class="kw">read_excel</span>(<span class="st">&quot;data/AOI_Hits11-36.xlsx&quot;</span>)
+FixDur06_10 &lt;-<span class="st"> </span><span class="kw">read_excel</span>(<span class="st">&quot;data/FixDur06-10.xlsx&quot;</span>)
+FixDur11_36 &lt;-<span class="st"> </span><span class="kw">read_excel</span>(<span class="st">&quot;data/FixDur11-36.xlsx&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Make unique AOI names</span>
+<span class="kw">names</span>(AOIfix06_10) &lt;-<span class="st"> </span><span class="kw">make.unique</span>(<span class="kw">names</span>(AOIfix06_10), <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)
+<span class="kw">names</span>(AOIfix11_36) &lt;-<span class="st"> </span><span class="kw">make.unique</span>(<span class="kw">names</span>(AOIfix11_36), <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)
+<span class="co"># Join dfs</span>
+AOIfix &lt;-<span class="st"> </span><span class="kw">full_join</span>(AOIfix06_10, AOIfix11_36)
+<span class="co"># Rename ID variables</span>
+AOIfix &lt;-<span class="st"> </span>dplyr::<span class="kw">rename</span>(AOIfix, 
+                        <span class="dt">Test =</span> StudioTestName,
+                        <span class="dt">ID =</span> RecordingName,
+                        <span class="dt">Trial =</span> SegmentName,
+                        <span class="dt">TrialLength_ms =</span> SegmentDuration,
+                        <span class="dt">FixTime =</span> RecordingTimestamp)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Gather AOIs</span>
+AOI_grouped &lt;-<span class="st"> </span>AOIfix %&gt;%
+<span class="st">  </span><span class="co"># gather all of the variables of interest</span>
+<span class="st">  </span><span class="kw">gather</span>(Var, Val, -(ID:FixationIndex))%&gt;%
+<span class="st">  </span><span class="co"># remove extra number from variable</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Var =</span> stringr::<span class="kw">str_replace_all</span>(Var, <span class="st">&#39;.[:digit:]+&#39;</span>, <span class="st">&#39;&#39;</span>), <span class="dt">Val =</span> <span class="kw">as.numeric</span>(Val))%&gt;%
+<span class="st">  </span><span class="co"># remove rows with missing values</span>
+<span class="st">  </span><span class="kw">na.omit</span>()%&gt;%
+<span class="st">  </span><span class="co"># Group by ID and trial info</span>
+<span class="st">  </span><span class="kw">group_by</span>(ID, Test, Trial, FixationIndex)%&gt;%
+<span class="st">  </span><span class="co"># spread the variables back into columns</span>
+<span class="st">  </span><span class="kw">spread</span>(Var, Val) %&gt;%
+<span class="st">  </span><span class="co"># Rename AOI Variables</span>
+<span class="st">  </span>plyr::<span class="kw">rename</span>(<span class="kw">c</span>(<span class="st">&quot;AOI[Hand]Hit&quot;</span> =<span class="st"> &quot;hand&quot;</span>,
+           <span class="st">&quot;AOI[Goal]Hit&quot;</span> =<span class="st"> &quot;goal&quot;</span>,
+           <span class="st">&quot;AOI[Distracter]Hit&quot;</span> =<span class="st"> &quot;distracter&quot;</span>,
+           <span class="st">&quot;AOI[Screen]Hit&quot;</span> =<span class="st"> &quot;screen&quot;</span>,
+           <span class="st">&quot;AOI[Body]Hit&quot;</span> =<span class="st"> &quot;body&quot;</span>))
+<span class="co"># Make 0 = NA</span>
+AOI_grouped[AOI_grouped ==<span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+
+<span class="co"># Split into 2 dataframes</span>
+AOI_Hand &lt;-<span class="st"> </span>AOI_grouped[<span class="kw">c</span>(<span class="st">&quot;Test&quot;</span>, <span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Trial&quot;</span>, <span class="st">&quot;TrialLength_ms&quot;</span>, <span class="st">&quot;FixTime&quot;</span>, <span class="st">&quot;FixationIndex&quot;</span>, <span class="st">&quot;screen&quot;</span>, <span class="st">&quot;distracter&quot;</span>, <span class="st">&quot;goal&quot;</span>, <span class="st">&quot;hand&quot;</span>)]
+AOI_Body &lt;-<span class="st"> </span>AOI_grouped[<span class="kw">c</span>(<span class="st">&quot;Test&quot;</span>, <span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Trial&quot;</span>, <span class="st">&quot;TrialLength_ms&quot;</span>, <span class="st">&quot;FixTime&quot;</span>, <span class="st">&quot;FixationIndex&quot;</span>, <span class="st">&quot;screen&quot;</span>, <span class="st">&quot;distracter&quot;</span>, <span class="st">&quot;goal&quot;</span>, <span class="st">&quot;body&quot;</span>)]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(plyr)
+AOI_h &lt;-<span class="st"> </span>AOI_Hand %&gt;%
+<span class="st">  </span><span class="co"># gather all of the variables of interest</span>
+<span class="st">  </span><span class="kw">gather</span>(Var, Val, -(Test:FixationIndex)) %&gt;%
+<span class="st">  </span><span class="kw">na.omit</span>()
+AOI_h &lt;-<span class="kw">arrange</span>(AOI_h, ID, Trial, FixTime)
+
+<span class="co"># ALL THE SUBSETS!</span>
+<span class="co"># df of rows that meet 1st row condition (for Fam and Test)</span>
+AOI_h1 &lt;-<span class="st"> </span><span class="kw">ddply</span>(AOI_h,.(ID, Trial),function(x) <span class="kw">head</span>(x,<span class="dv">1</span>))
+
+<span class="co"># Just Test Trials</span>
+AOI_test &lt;-<span class="st"> </span>AOI_h[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, AOI_h$Trial),]
+<span class="co"># Just Test Trials with fixation to hand</span>
+AOI_testhand &lt;-<span class="st"> </span><span class="kw">filter</span>(AOI_test, Var ==<span class="st"> &quot;hand&quot;</span>)
+<span class="co"># df of rows that meet 1st fixation to hand condition</span>
+AOI_h2 &lt;-<span class="st"> </span><span class="kw">ddply</span>(AOI_testhand,.(ID, Trial),function(x) <span class="kw">head</span>(x,<span class="dv">1</span>))
+
+<span class="co"># Predictions on Test Trials after fixation to hand</span>
+AOI_hp &lt;-<span class="st"> </span>AOI_test %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(Var !=<span class="st"> &quot;screen&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(ID, Trial)%&gt;%
+<span class="st">  </span><span class="co"># When Var is Goal or Distracter following a Hand hit</span>
+<span class="st">  </span><span class="kw">filter</span>(Var ==<span class="st"> &quot;goal&quot;</span> &amp;<span class="st"> </span><span class="kw">lag</span>(Var) ==<span class="st"> &quot;hand&quot;</span> |<span class="st"> </span>Var ==<span class="st"> &quot;distracter&quot;</span> &amp;<span class="st"> </span><span class="kw">lag</span>(Var) ==<span class="st"> &quot;hand&quot;</span>)
+<span class="co"># df of rows that meet 1st object fixation after hand fixation condition</span>
+AOI_h3 &lt;-<span class="st"> </span><span class="kw">ddply</span>(AOI_hp,.(ID, Trial),function(x) <span class="kw">head</span>(x,<span class="dv">1</span>))
+
+<span class="co"># Join the subsets</span>
+allAOIh &lt;-<span class="st"> </span><span class="kw">rbind</span>(AOI_h2, AOI_h3) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(ID, FixTime)
+allAOIh &lt;-<span class="st"> </span><span class="kw">unique</span>(allAOIh)
+allAOIh &lt;-<span class="st"> </span><span class="kw">arrange</span>(allAOIh, ID, Trial, FixTime)
+
+<span class="co"># df for test trials that just make predictions</span>
+allAOIh_1 &lt;-<span class="st"> </span>allAOIh %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(ID, Trial) %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(Var ==<span class="st"> &quot;goal&quot;</span> &amp;<span class="st"> </span><span class="kw">lag</span>(Var) ==<span class="st"> &quot;hand&quot;</span> |
+<span class="st">           </span>Var ==<span class="st"> &quot;distracter&quot;</span> &amp;<span class="st"> </span><span class="kw">lag</span>(Var) ==<span class="st"> &quot;hand&quot;</span> |
+<span class="st">           </span>Var ==<span class="st"> &quot;hand&quot;</span> &amp;<span class="st"> </span><span class="kw">lead</span>(Var) ==<span class="st"> &quot;distracter&quot;</span> |
+<span class="st">           </span>Var ==<span class="st"> &quot;hand&quot;</span> &amp;<span class="st"> </span><span class="kw">lead</span>(Var) ==<span class="st"> &quot;goal&quot;</span>)
+allAOIh_1 &lt;-<span class="st"> </span><span class="kw">ddply</span>(allAOIh_1, .(ID, Trial))
+
+<span class="co"># Join to AOI_h1 for the first rows of Fam and Test</span>
+tidyhand &lt;-<span class="st"> </span><span class="kw">rbind</span>(AOI_h1, allAOIh_1) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(ID, FixTime)
+<span class="co"># Keep only the last two rows of each trial</span>
+tidyhand &lt;-<span class="st"> </span><span class="kw">ddply</span>(tidyhand,.(ID, Trial),function(x) <span class="kw">tail</span>(x,<span class="dv">2</span>)) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(ID, FixTime)
+
+<span class="co"># spread the variables back into columns, drop fixation index, arrange</span>
+tidyhand &lt;-<span class="st"> </span>tidyhand %&gt;%
+<span class="st">  </span><span class="kw">select</span>(-FixationIndex) %&gt;%
+<span class="st">  </span><span class="kw">spread</span>(Var, Val) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(ID, Trial, FixTime)
+
+<span class="co"># At this point, tidyhand = all 1st fixation of fam trials &amp; prediction pairs of test trial OR first fixation in test trial</span>
+hand_pred &lt;-<span class="st"> </span>tidyhand %&gt;%
+<span class="st">  </span><span class="kw">select</span>(-screen) %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(ID, Trial) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">hand_fix =</span> <span class="kw">ifelse</span>(hand ==<span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>),
+         <span class="dt">d_fix =</span> <span class="kw">ifelse</span>(distracter ==<span class="st"> </span><span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>),
+         <span class="dt">g_fix =</span> <span class="kw">ifelse</span>(goal ==<span class="st"> </span><span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">0</span>),
+         <span class="dt">hand =</span> <span class="ot">NULL</span>, <span class="dt">distracter =</span> <span class="ot">NULL</span>, <span class="dt">goal =</span> <span class="ot">NULL</span>)%&gt;%
+<span class="st">  </span><span class="kw">replace_na</span>(<span class="kw">list</span>(<span class="dt">hand_fix =</span> <span class="dv">0</span>, <span class="dt">d_fix =</span> <span class="dv">0</span>, <span class="dt">g_fix =</span> <span class="dv">0</span>))%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Prediction =</span> hand_fix +<span class="st"> </span>d_fix +<span class="st"> </span>g_fix, <span class="dt">hand_fix =</span> <span class="ot">NULL</span>, <span class="dt">d_fix =</span> <span class="ot">NULL</span>, <span class="dt">g_fix =</span> <span class="ot">NULL</span>)
+hand_pred$Hand_Prediction &lt;-<span class="st"> </span><span class="kw">factor</span>(hand_pred$Hand_Prediction,
+                           <span class="dt">levels =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),
+                           <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;screen&quot;</span>, <span class="st">&quot;hand&quot;</span>, <span class="st">&quot;distracter&quot;</span>, <span class="st">&quot;goal&quot;</span>))
+hand_pred &lt;-<span class="st"> </span>hand_pred[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, hand_pred$Trial),]
+hand_pred &lt;-<span class="st"> </span>hand_pred[!<span class="kw">grepl</span>(<span class="st">&quot;screen&quot;</span>, hand_pred$Hand_Prediction),]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Calculate Latency</span>
+latency &lt;-<span class="st"> </span>hand_pred %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Latency =</span> <span class="kw">as.numeric</span>(FixTime) -<span class="st"> </span><span class="kw">lag</span>(<span class="kw">as.numeric</span>(FixTime)))
+
+<span class="co"># Discard hand fixations</span>
+pred_lat &lt;-<span class="st"> </span>latency[!<span class="kw">grepl</span>(<span class="st">&quot;hand&quot;</span>, latency$Hand_Prediction),]
+
+<span class="co"># df for hand fixations on trials without predictions</span>
+antihand &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_h2, latency)
+<span class="co"># rename Var to no prediction, drop other useless columns</span>
+antihand &lt;-<span class="st"> </span>antihand %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Prediction =</span> <span class="st">&quot;No Prediction&quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Latency =</span> <span class="ot">NA</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
+  
+<span class="co"># join it to the prediction df</span>
+hand_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(pred_lat, antihand)
+
+<span class="co"># df for screen fixations on trials without predictions</span>
+nopred &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_h1, hand_df, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Test&quot;</span>, <span class="st">&quot;Trial&quot;</span>, <span class="st">&quot;TrialLength_ms&quot;</span>))
+<span class="co"># rename Var to no prediction, drop other useless columns</span>
+nopred &lt;-<span class="st"> </span>nopred %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, nopred$Trial))%&gt;%
+<span class="st">  </span><span class="co"># rename Var to NLTH, drop other useless columns</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Prediction =</span> <span class="st">&quot;No Look to Hand&quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Latency =</span> <span class="ot">NA</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
+
+<span class="co"># join it to the prediction + no prediction df</span>
+hand_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(hand_df, nopred)
+
+<span class="co"># df for Fam fixations</span>
+FamFix &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_h1, hand_df, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Test&quot;</span>, <span class="st">&quot;Trial&quot;</span>, <span class="st">&quot;TrialLength_ms&quot;</span>))
+<span class="co"># rename Var to no prediction, drop other useless columns</span>
+FamFix &lt;-<span class="st"> </span>FamFix %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, FamFix$Trial))%&gt;%
+<span class="st">  </span><span class="co"># rename Var to NLTH, drop other useless columns</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Prediction =</span> <span class="ot">NA</span>)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Latency =</span> <span class="ot">NA</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
+
+<span class="co"># join it to the predictions df</span>
+hand_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(hand_df, FamFix)
+
+<span class="co"># Drop fixation time</span>
+hand_df &lt;-<span class="st"> </span><span class="kw">select</span>(hand_df, -FixTime)
+
+<span class="co"># Factor and add _ before numbers</span>
+hand_df_Fam &lt;-<span class="st"> </span>hand_df[!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, hand_df$Trial),]
+hand_df_Fam &lt;-<span class="st"> </span>hand_df_Fam %&gt;%
+<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
+hand_df_Fam &lt;-<span class="st"> </span><span class="kw">unite</span>(hand_df_Fam, Trial, Type, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
+
+hand_df_TT &lt;-<span class="st"> </span>hand_df[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, hand_df$Trial),]
+hand_df_TT &lt;-<span class="st"> </span>hand_df_TT %&gt;%
+<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type1&quot;</span>, <span class="st">&quot;Type2&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
+hand_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(hand_df_TT, Trial, Type1, Type2, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
+hand_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(hand_df_TT, Trial, Trial, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
+
+<span class="co"># Join them back together</span>
+hand_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(hand_df_TT,hand_df_Fam)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(plyr)
+AOI_b &lt;-<span class="st"> </span>AOI_Body %&gt;%
+<span class="st">  </span><span class="co"># gather all of the variables of interest</span>
+<span class="st">  </span><span class="kw">gather</span>(Var, Val, -(Test:FixationIndex)) %&gt;%
+<span class="st">  </span><span class="kw">na.omit</span>()
+AOI_b &lt;-<span class="kw">arrange</span>(AOI_b, ID, Trial, FixTime)
+
+<span class="co"># ALL THE SUBSETS!</span>
+<span class="co"># df of rows that meet 1st row condition (for Fam and Test)</span>
+AOI_b1 &lt;-<span class="st"> </span><span class="kw">ddply</span>(AOI_b,.(ID, Trial),function(x) <span class="kw">head</span>(x,<span class="dv">1</span>))
+
+<span class="co"># Just Test Trials</span>
+AOI_test1 &lt;-<span class="st"> </span>AOI_b[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, AOI_b$Trial),]
+<span class="co"># Just Test Trials with fixation to body</span>
+AOI_testbody &lt;-<span class="st"> </span><span class="kw">filter</span>(AOI_test1, Var ==<span class="st"> &quot;body&quot;</span>)
+<span class="co"># df of rows that meet 1st fixation to body condition</span>
+AOI_b2 &lt;-<span class="st"> </span><span class="kw">ddply</span>(AOI_testbody,.(ID, Trial),function(x) <span class="kw">head</span>(x,<span class="dv">1</span>))
+
+<span class="co"># Predictions on Test Trials after fixation to body</span>
+AOI_bp &lt;-<span class="st"> </span>AOI_test1 %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(Var !=<span class="st"> &quot;screen&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(ID, Trial)%&gt;%
+<span class="st">  </span><span class="co"># When Var is Goal or Distracter following a body hit</span>
+<span class="st">  </span><span class="kw">filter</span>(Var ==<span class="st"> &quot;goal&quot;</span> &amp;<span class="st"> </span><span class="kw">lag</span>(Var) ==<span class="st"> &quot;body&quot;</span> |<span class="st"> </span>Var ==<span class="st"> &quot;distracter&quot;</span> &amp;<span class="st"> </span><span class="kw">lag</span>(Var) ==<span class="st"> &quot;body&quot;</span>)
+<span class="co"># df of rows that meet 1st object fixation after body fixation condition</span>
+AOI_b3 &lt;-<span class="st"> </span><span class="kw">ddply</span>(AOI_bp,.(ID, Trial),function(x) <span class="kw">head</span>(x,<span class="dv">1</span>))
+
+<span class="co"># Join the subsets</span>
+allAOIb &lt;-<span class="st"> </span><span class="kw">rbind</span>(AOI_b2, AOI_b3) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(ID, FixTime)
+allAOIb &lt;-<span class="st"> </span><span class="kw">unique</span>(allAOIb)
+allAOIb &lt;-<span class="st"> </span><span class="kw">arrange</span>(allAOIb, ID, Trial, FixTime)
+
+<span class="co"># df for test trials that just make predictions</span>
+allAOIb_1 &lt;-<span class="st"> </span>allAOIb %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(ID, Trial) %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(Var ==<span class="st"> &quot;goal&quot;</span> &amp;<span class="st"> </span><span class="kw">lag</span>(Var) ==<span class="st"> &quot;body&quot;</span> |
+<span class="st">           </span>Var ==<span class="st"> &quot;distracter&quot;</span> &amp;<span class="st"> </span><span class="kw">lag</span>(Var) ==<span class="st"> &quot;body&quot;</span> |
+<span class="st">           </span>Var ==<span class="st"> &quot;body&quot;</span> &amp;<span class="st"> </span><span class="kw">lead</span>(Var) ==<span class="st"> &quot;distracter&quot;</span> |
+<span class="st">           </span>Var ==<span class="st"> &quot;body&quot;</span> &amp;<span class="st"> </span><span class="kw">lead</span>(Var) ==<span class="st"> &quot;goal&quot;</span>)
+allAOIb_1 &lt;-<span class="st"> </span><span class="kw">ddply</span>(allAOIb_1, .(ID, Trial))
+
+<span class="co"># Join to AOI_b1 for the first rows of Fam and Test</span>
+tidybody &lt;-<span class="st"> </span><span class="kw">rbind</span>(AOI_b1, allAOIb_1) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(ID, FixTime)
+<span class="co"># Keep only the last two rows of each trial</span>
+tidybody &lt;-<span class="st"> </span><span class="kw">ddply</span>(tidybody,.(ID, Trial),function(x) <span class="kw">tail</span>(x,<span class="dv">2</span>)) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(ID, FixTime)
+
+<span class="co"># spread the variables back into columns, drop fixation index, arrange</span>
+tidybody &lt;-<span class="st"> </span>tidybody %&gt;%
+<span class="st">  </span><span class="kw">select</span>(-FixationIndex) %&gt;%
+<span class="st">  </span><span class="kw">spread</span>(Var, Val) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(ID, Trial, FixTime)
+
+<span class="co"># At this point, tidybody = all 1st fixation of fam trials &amp; prediction pairs of test trial OR first fixation in test trial</span>
+body_pred &lt;-<span class="st"> </span>tidybody %&gt;%
+<span class="st">  </span><span class="kw">select</span>(-screen) %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(ID, Trial) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">body_fix =</span> <span class="kw">ifelse</span>(body ==<span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>),
+         <span class="dt">d_fix =</span> <span class="kw">ifelse</span>(distracter ==<span class="st"> </span><span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>),
+         <span class="dt">g_fix =</span> <span class="kw">ifelse</span>(goal ==<span class="st"> </span><span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">0</span>),
+         <span class="dt">body =</span> <span class="ot">NULL</span>, <span class="dt">distracter =</span> <span class="ot">NULL</span>, <span class="dt">goal =</span> <span class="ot">NULL</span>)%&gt;%
+<span class="st">  </span><span class="kw">replace_na</span>(<span class="kw">list</span>(<span class="dt">body_fix =</span> <span class="dv">0</span>, <span class="dt">d_fix =</span> <span class="dv">0</span>, <span class="dt">g_fix =</span> <span class="dv">0</span>))%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Prediction =</span> body_fix +<span class="st"> </span>d_fix +<span class="st"> </span>g_fix, <span class="dt">body_fix =</span> <span class="ot">NULL</span>, <span class="dt">d_fix =</span> <span class="ot">NULL</span>, <span class="dt">g_fix =</span> <span class="ot">NULL</span>)
+body_pred$Body_Prediction &lt;-<span class="st"> </span><span class="kw">factor</span>(body_pred$Body_Prediction,
+                           <span class="dt">levels =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),
+                           <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;screen&quot;</span>, <span class="st">&quot;body&quot;</span>, <span class="st">&quot;distracter&quot;</span>, <span class="st">&quot;goal&quot;</span>))
+body_pred &lt;-<span class="st"> </span>body_pred[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, body_pred$Trial),]
+body_pred &lt;-<span class="st"> </span>body_pred[!<span class="kw">grepl</span>(<span class="st">&quot;screen&quot;</span>, body_pred$Body_Prediction),]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Calculate Latency</span>
+latency &lt;-<span class="st"> </span>body_pred %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Latency =</span> <span class="kw">as.numeric</span>(FixTime) -<span class="st"> </span><span class="kw">lag</span>(<span class="kw">as.numeric</span>(FixTime)))
+
+<span class="co"># Discard body fixations</span>
+pred_lat &lt;-<span class="st"> </span>latency[!<span class="kw">grepl</span>(<span class="st">&quot;body&quot;</span>, latency$Body_Prediction),]
+
+<span class="co"># df for body fixations on trials without predictions</span>
+antibody &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_b2, latency)
+<span class="co"># rename Var to no prediction, drop other useless columns</span>
+antibody &lt;-<span class="st"> </span>antibody %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Prediction =</span> <span class="st">&quot;No Prediction&quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Latency =</span> <span class="ot">NA</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
+  
+<span class="co"># join it to the prediction df</span>
+body_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(pred_lat, antibody)
+
+<span class="co"># df for screen fixations on trials without predictions</span>
+nopred &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_b1, body_df, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Test&quot;</span>, <span class="st">&quot;Trial&quot;</span>, <span class="st">&quot;TrialLength_ms&quot;</span>))
+<span class="co"># rename Var to no prediction, drop other useless columns</span>
+nopred &lt;-<span class="st"> </span>nopred %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, nopred$Trial))%&gt;%
+<span class="st">  </span><span class="co"># rename Var to NLTB, drop other useless columns</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Prediction =</span> <span class="st">&quot;No Look to body&quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Latency =</span> <span class="ot">NA</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
+
+<span class="co"># join it to the prediction + no prediction df</span>
+body_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(body_df, nopred)
+
+<span class="co"># df for Fam fixations</span>
+FamFix &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_b1, body_df, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Test&quot;</span>, <span class="st">&quot;Trial&quot;</span>, <span class="st">&quot;TrialLength_ms&quot;</span>))
+<span class="co"># rename Var to no prediction, drop other useless columns</span>
+FamFix &lt;-<span class="st"> </span>FamFix %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, FamFix$Trial))%&gt;%
+<span class="st">  </span><span class="co"># rename Var to NLTH, drop other useless columns</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Prediction =</span> <span class="ot">NA</span>)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Latency =</span> <span class="ot">NA</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
+
+<span class="co"># join it to the predictions df</span>
+body_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(body_df, FamFix)
+
+<span class="co"># Drop fixation time</span>
+body_df &lt;-<span class="st"> </span><span class="kw">select</span>(body_df, -FixTime)
+
+<span class="co"># Factor and add _ before numbers</span>
+body_df_Fam &lt;-<span class="st"> </span>body_df[!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, body_df$Trial),]
+body_df_Fam &lt;-<span class="st"> </span>body_df_Fam %&gt;%
+<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
+body_df_Fam &lt;-<span class="st"> </span><span class="kw">unite</span>(body_df_Fam, Trial, Type, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
+
+body_df_TT &lt;-<span class="st"> </span>body_df[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, body_df$Trial),]
+body_df_TT &lt;-<span class="st"> </span>body_df_TT %&gt;%
+<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type1&quot;</span>, <span class="st">&quot;Type2&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
+body_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(body_df_TT, Trial, Type1, Type2, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
+body_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(body_df_TT, Trial, Trial, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
+
+<span class="co"># Join them back together</span>
+body_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(body_df_TT,body_df_Fam)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Remove the first duplicated part of the column names</span>
+<span class="kw">colnames</span>(FixDur06_10)&lt;-<span class="kw">sub</span>(<span class="st">&quot;^[^_]*_&quot;</span>,<span class="st">&quot;&quot;</span>, <span class="kw">colnames</span>(FixDur06_10))
+<span class="kw">colnames</span>(FixDur11_36)&lt;-<span class="kw">sub</span>(<span class="st">&quot;^[^_]*_&quot;</span>,<span class="st">&quot;&quot;</span>, <span class="kw">colnames</span>(FixDur11_36))
+<span class="co"># Make unique names</span>
+<span class="kw">names</span>(FixDur06_10) &lt;-<span class="st"> </span><span class="kw">make.unique</span>(<span class="kw">names</span>(FixDur06_10), <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)
+<span class="kw">names</span>(FixDur11_36) &lt;-<span class="st"> </span><span class="kw">make.unique</span>(<span class="kw">names</span>(FixDur11_36), <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)
+<span class="co"># Make first column ID</span>
+<span class="kw">colnames</span>(FixDur06_10)[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>)
+<span class="kw">colnames</span>(FixDur11_36)[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>)
+<span class="co"># Join dfs</span>
+FixDur &lt;-<span class="st"> </span><span class="kw">full_join</span>(FixDur06_10, FixDur11_36)
+<span class="co"># Make 0 = NA</span>
+FixDur[FixDur==<span class="dv">0</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Gather Trials</span>
+FixDurGrouped &lt;-<span class="st"> </span>FixDur %&gt;%
+<span class="st">  </span><span class="co"># gather all of the variables of interest</span>
+<span class="st">  </span><span class="kw">gather</span>(Var, Time_Attending, -(ID))%&gt;%
+<span class="st">  </span><span class="co"># Separate Trial and AOI</span>
+<span class="st">  </span><span class="kw">separate</span>(Var, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Trial&quot;</span>, <span class="st">&quot;AOI&quot;</span>, <span class="st">&quot;Sum&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>) %&gt;%
+<span class="st">  </span><span class="co"># Deselect Sum</span>
+<span class="st">  </span><span class="kw">select</span>(-Sum)%&gt;%
+<span class="st">  </span><span class="co"># remove rows with missing values</span>
+<span class="st">  </span><span class="kw">na.omit</span>()%&gt;%
+<span class="st">  </span><span class="kw">filter</span>(AOI ==<span class="st"> &quot;Screen&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">select</span>(-AOI) %&gt;%
+<span class="st">  </span><span class="co"># Group </span>
+<span class="st">  </span><span class="kw">group_by</span>(ID, Trial)
+
+<span class="co"># Factor and add _ before numbers</span>
+FixDur_Fam &lt;-<span class="st"> </span>FixDurGrouped[!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, FixDurGrouped$Trial),]
+FixDur_Fam &lt;-<span class="st"> </span>FixDur_Fam %&gt;%
+<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
+FixDur_Fam &lt;-<span class="st"> </span><span class="kw">unite</span>(FixDur_Fam, Trial, Type, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Join Hand and Body</span>
+Prediction_Latency &lt;-<span class="st"> </span><span class="kw">left_join</span>(hand_df, body_df)
+
+<span class="co"># Join to Trial Length for Fam</span>
+Fam &lt;-<span class="st"> </span>AOI_b1 %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, AOI_b1$Trial))%&gt;%
+<span class="st">  </span><span class="kw">select</span>(Test:TrialLength_ms)
+untidyMOAP &lt;-<span class="st"> </span><span class="kw">left_join</span>(Prediction_Latency, Fam)
+
+<span class="co"># ***********************************</span>
+<span class="co"># STUCK HERE, CAN&#39;T GET THEM TO JOIN PROPERLY, WHYYYYYYYYYY</span>
+<span class="co"># Join to Attention</span>
+<span class="co"># untidyMOAP1 &lt;- full_join(untidyMOAP, FixDur_Fam, by = c(&quot;ID&quot;, &quot;Trial&quot;))</span>
+
+<span class="co"># ***********************************</span>
+
+
+<span class="co"># untidyMOAP1 &lt;- arrange(untidyMOAP1, Test, ID, Trial)</span>
+
+<span class="co"># Transform AOI fix times to ms</span>
+<span class="co"># untidyMOAP1 &lt;- untidyMOAP1 %&gt;%</span>
+<span class="co">#  transform(Fix_Screen = Time_Attending * 1000) %&gt;%</span>
+  <span class="co"># Calculate Sample Rate</span>
+<span class="co">#  transform(Screen_Att = Fix_Screen / TrialLength_ms)</span>
+<span class="co"># # Separate Trial Numbers</span>
+<span class="co"># MOAP &lt;- MOAP %&gt;%</span>
+<span class="co">#   separate(Trial, into = c(&quot;Trial_Type&quot;, &quot;Trial_Num&quot;), sep = &quot;_&quot;)</span>
+<span class="co"># </span>
+<span class="co"># write_excel_csv(MOAP, &quot;data/MOAP.csv&quot;)</span></code></pre></div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

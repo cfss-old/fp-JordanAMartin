@@ -5,9 +5,9 @@ navbar:
   left:
     - text: "Study Overview"
       href: index.html
-    - text: "Dataset"
-      href: data.csv
-    - text: "Statistical Analysis"
+    - text: "Data Wrangling"
+      href: Tidying.html
+    - text: "Results"
       href: Stats.html
 output:
   html_document:

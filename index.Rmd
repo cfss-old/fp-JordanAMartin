@@ -4,15 +4,18 @@ title: "Study Overview"
 
 ## Lit Review
 
-### Research Question
+### Research Questions
+#### * Q1: Does AOI definition matter?
+#### * Q2: Does latency vary by type of prediction?
+#### * Q3: Can attention to familiarization predict whether or not an infant will generate a prediction?
+#### * Q4: Can attention to familiarization predict what type of prediction infants will generate when they do make a prediction?
+
 
 
 
 ## Method
 
 ### Eye-tracking Paradigm
-
-### Exclusion criteria
 
 ### Data Reduction
 
