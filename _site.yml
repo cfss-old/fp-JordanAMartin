@@ -1,9 +1,15 @@
 name: "my-website"
 output_dir: "."
 navbar:
-  title: "My Website"
+  title: "Infant Social Cognition"
   left:
-    - text: "Home"
+    - text: "Study Overview"
       href: index.html
-    - text: "About"
-      href: about.html
+    - text: "Dataset"
+      href: data.csv
+    - text: "Statistical Analysis"
+      href: Stats.html
+output:
+  html_document:
+    theme: spacelab
+    highlight: pygments

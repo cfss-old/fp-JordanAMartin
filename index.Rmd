@@ -1,5 +1,28 @@
 ---
-title: "My Website"
+title: "Study Overview"
 ---
 
-Hello, Website!
+## Lit Review
+
+### Research Question
+
+
+
+## Method
+
+### Eye-tracking Paradigm
+
+### Exclusion criteria
+
+### Data Reduction
+
+
+
+## Results
+
+### Infant Generated Prediction
+
+### Prediction Speed
+
+
+  
