@@ -7,7 +7,7 @@ title: "Study Overview"
   
   In the aforementioned study, a prediction was defined as a gaze fixation to either object after a fixation to a pre-defined area of interest around the agent's hand. The current study seeks to confirm the previous findings that goal-based predictions take longer than location-based predictions to elicit while comparing the proportion of predictions made following either an initial fixation to an area of interest around the hand or to that which encompasses the agent's entire body. Additionally, the relationship between overall scene attention in familizarization and proportion of predictions generated on test will be explored. 
   
-### Research Questions
+## Research Questions
 #### * Q1: Does AOI definition matter?
 #### * Q2: Does latency vary by type of prediction?
 #### * Q3: Can attention to familiarization predict whether or not an infant will generate a prediction?
@@ -15,18 +15,18 @@ title: "Study Overview"
 
 ## Method
 
-### Eye-tracking Paradigm
+#### Eye-tracking Paradigm
   Eighteen-month-old infants were shown an eye-tracking paradigm as described above. Familiarization videos showed an agent reaching for and grasping one of two toys. Four different agents and toy-pairs were shown. Test trials were shown twice, each after familiarization, for a total of 8 Test Trials.
 
-### Data Reduction
+#### Data Reduction
 
 
 
 ## Results
 
-### Infant Generated Prediction
+#### Infant Generated Prediction
 
-### Prediction Speed
+#### Prediction Speed
 
 
   

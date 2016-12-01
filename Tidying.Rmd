@@ -26,6 +26,25 @@ AOIfix <- dplyr::rename(AOIfix,
                         FixTime = RecordingTimestamp)
 ```
 
+```{r Check AOI Sums, echo=TRUE, message=FALSE, warning=FALSE}
+# This is to ensure the subsequent scripts run clean. Sometimes Tobii has weird artificats that duplicate AOI hits at the same fixation point. The output table of this code will sum how many values exist for the AOI, sum should always be n= 5 [Test], n = 4 [Fam]. If there is a duplicate that needs to be found/excluded, it will be n = 9 or 8.
+
+# Gather AOIs and test for correct sums
+AOI_sums <- AOIfix %>%
+  # gather all of the variables of interest
+  gather(Var, Val, -(ID:FixationIndex)) %>%
+  # remove extra number from variable
+  mutate(Var = stringr::str_replace_all(Var, '.[:digit:]+', ''), Val = as.numeric(Val)) %>%
+  # remove rows with missing values
+  na.omit() %>%
+  # Group by ID and trial info
+  group_by(Test, ID, Trial, FixationIndex) %>%
+  dplyr::mutate(n = n()) %>%
+  ungroup() %>%
+  arrange(-n, Test, ID, Trial, TrialLength_ms, FixTime, FixationIndex, Var)
+```
+
+
 ```{r Group AOI, echo=TRUE, message=FALSE, warning=FALSE}
 # Gather AOIs
 AOI_grouped <- AOIfix %>%
@@ -121,7 +140,7 @@ hand_pred <- tidyhand %>%
   mutate(Hand_Prediction = hand_fix + d_fix + g_fix, hand_fix = NULL, d_fix = NULL, g_fix = NULL)
 hand_pred$Hand_Prediction <- factor(hand_pred$Hand_Prediction,
                            levels = c(0,1,2,3),
-                           labels = c("screen", "hand", "distracter", "goal"))
+                           labels = c("screen", "hand", "Distracter", "Goal"))
 hand_pred <- hand_pred[!grepl("Fam", hand_pred$Trial),]
 hand_pred <- hand_pred[!grepl("screen", hand_pred$Hand_Prediction),]
 ```
@@ -150,8 +169,8 @@ nopred <- anti_join(AOI_h1, hand_df, by = c("ID", "Test", "Trial", "TrialLength_
 # rename Var to no prediction, drop other useless columns
 nopred <- nopred %>%
   filter(!grepl("Fam", nopred$Trial))%>%
-  # rename Var to NLTH, drop other useless columns
-  mutate(Hand_Prediction = "No Look to Hand")%>%
+  # rename Var to NP, drop other useless columns
+  mutate(Hand_Prediction = "No Prediction")%>%
   mutate(Hand_Latency = NA)%>%
   select(-FixationIndex, -Var, -Val)
 
@@ -163,7 +182,6 @@ FamFix <- anti_join(AOI_h1, hand_df, by = c("ID", "Test", "Trial", "TrialLength_
 # rename Var to no prediction, drop other useless columns
 FamFix <- FamFix %>%
   filter(!grepl("Test", FamFix$Trial))%>%
-  # rename Var to NLTH, drop other useless columns
   mutate(Hand_Prediction = NA)%>%
   mutate(Hand_Latency = NA)%>%
   select(-FixationIndex, -Var, -Val)
@@ -175,19 +193,12 @@ hand_df <- rbind(hand_df, FamFix)
 hand_df <- select(hand_df, -FixTime)
 
 # Factor and add _ before numbers
-hand_df_Fam <- hand_df[!grepl("Test", hand_df$Trial),]
-hand_df_Fam <- hand_df_Fam %>%
-  separate(Trial, into = c("Type", "Num"), sep = " ")
-hand_df_Fam <- unite(hand_df_Fam, Trial, Type, Num, sep = "_")
-
 hand_df_TT <- hand_df[!grepl("Fam", hand_df$Trial),]
 hand_df_TT <- hand_df_TT %>%
-  separate(Trial, into = c("Type1", "Type2", "Num"), sep = " ")
-hand_df_TT <- unite(hand_df_TT, Trial, Type1, Type2, sep = " ")
-hand_df_TT <- unite(hand_df_TT, Trial, Trial, Num, sep = "_")
-
-# Join them back together
-hand_df <- rbind(hand_df_TT,hand_df_Fam)
+  separate(Trial, into = c("Type1", "Type2", "Num0"), sep = " ")
+hand_df_TT <- unite(hand_df_TT, Trial, Type1, Type2, sep = " ") %>%
+  mutate(Num = Num0)
+hand_df_TT <- unite(hand_df_TT, Trial, Trial, Num0, sep = "_")
 ```
 
 ```{r Body Predictions, echo=TRUE, message=FALSE, warning=FALSE}
@@ -258,7 +269,7 @@ body_pred <- tidybody %>%
   mutate(Body_Prediction = body_fix + d_fix + g_fix, body_fix = NULL, d_fix = NULL, g_fix = NULL)
 body_pred$Body_Prediction <- factor(body_pred$Body_Prediction,
                            levels = c(0,1,2,3),
-                           labels = c("screen", "body", "distracter", "goal"))
+                           labels = c("screen", "body", "Distracter", "Goal"))
 body_pred <- body_pred[!grepl("Fam", body_pred$Trial),]
 body_pred <- body_pred[!grepl("screen", body_pred$Body_Prediction),]
 ```
@@ -287,8 +298,8 @@ nopred <- anti_join(AOI_b1, body_df, by = c("ID", "Test", "Trial", "TrialLength_
 # rename Var to no prediction, drop other useless columns
 nopred <- nopred %>%
   filter(!grepl("Fam", nopred$Trial))%>%
-  # rename Var to NLTB, drop other useless columns
-  mutate(Body_Prediction = "No Look to body")%>%
+  # rename Var to NP, drop other useless columns
+  mutate(Body_Prediction = "No Prediction")%>%
   mutate(Body_Latency = NA)%>%
   select(-FixationIndex, -Var, -Val)
 
@@ -300,7 +311,6 @@ FamFix <- anti_join(AOI_b1, body_df, by = c("ID", "Test", "Trial", "TrialLength_
 # rename Var to no prediction, drop other useless columns
 FamFix <- FamFix %>%
   filter(!grepl("Test", FamFix$Trial))%>%
-  # rename Var to NLTH, drop other useless columns
   mutate(Body_Prediction = NA)%>%
   mutate(Body_Latency = NA)%>%
   select(-FixationIndex, -Var, -Val)
@@ -312,19 +322,12 @@ body_df <- rbind(body_df, FamFix)
 body_df <- select(body_df, -FixTime)
 
 # Factor and add _ before numbers
-body_df_Fam <- body_df[!grepl("Test", body_df$Trial),]
-body_df_Fam <- body_df_Fam %>%
-  separate(Trial, into = c("Type", "Num"), sep = " ")
-body_df_Fam <- unite(body_df_Fam, Trial, Type, Num, sep = "_")
-
 body_df_TT <- body_df[!grepl("Fam", body_df$Trial),]
 body_df_TT <- body_df_TT %>%
-  separate(Trial, into = c("Type1", "Type2", "Num"), sep = " ")
-body_df_TT <- unite(body_df_TT, Trial, Type1, Type2, sep = " ")
-body_df_TT <- unite(body_df_TT, Trial, Trial, Num, sep = "_")
-
-# Join them back together
-body_df <- rbind(body_df_TT,body_df_Fam)
+  separate(Trial, into = c("Type1", "Type2", "Num0"), sep = " ")
+body_df_TT <- unite(body_df_TT, Trial, Type1, Type2, sep = " ") %>%
+  mutate(Num = Num0)
+body_df_TT <- unite(body_df_TT, Trial, Trial, Num0, sep = "_")
 ```
 
 ```{r FixDur Tidy, echo=TRUE, message=FALSE, warning=FALSE}
@@ -347,56 +350,61 @@ FixDur[FixDur==0] <- NA
 # Gather Trials
 FixDurGrouped <- FixDur %>%
   # gather all of the variables of interest
-  gather(Var, Time_Attending, -(ID))%>%
+  gather(Var, Time_Attending, -(ID:Test))%>%
   # Separate Trial and AOI
   separate(Var, into = c("Trial", "AOI", "Sum"), sep = "_") %>%
   # Deselect Sum
   select(-Sum)%>%
   # remove rows with missing values
   na.omit()%>%
-  filter(AOI == "Screen") %>%
-  select(-AOI) %>%
   # Group 
   group_by(ID, Trial)
 
-# Factor and add _ before numbers
+# Factor and add _ before numbers Fam
 FixDur_Fam <- FixDurGrouped[!grepl("Test", FixDurGrouped$Trial),]
 FixDur_Fam <- FixDur_Fam %>%
   separate(Trial, into = c("Type", "Num"), sep = " ")
-FixDur_Fam <- unite(FixDur_Fam, Trial, Type, Num, sep = "_")
-```
+FixDur_Fam <- unite(FixDur_Fam, Trial, Type, AOI, sep = "_") %>%
+  spread(Trial, Time_Attending)
 
+# Factor and add _ before numbers Test
+FixDur_Test <- FixDurGrouped[!grepl("Fam", FixDurGrouped$Trial),]
+FixDur_Test <- FixDur_Test %>%
+  separate(Trial, into = c("Type", "Type2", "Num"), sep = " ")%>%
+  select(-Type2)
+FixDur_Test <- unite(FixDur_Test, Trial, Type, AOI, sep = "_") %>%
+  spread(Trial, Time_Attending)
+
+# Join df
+FixDur_Split <- left_join(FixDur_Fam, FixDur_Test)
+```
 
 ```{r Final Data Frame, echo=TRUE, message=FALSE, warning=FALSE}
 # Join Hand and Body
-Prediction_Latency <- left_join(hand_df, body_df)
+Prediction_Latency <- left_join(hand_df_TT, body_df_TT)%>%
+  dplyr::rename(TestTrialLength_ms = TrialLength_ms)%>%
+  select(-Trial)
 
 # Join to Trial Length for Fam
 Fam <- AOI_b1 %>%
   filter(!grepl("Test", AOI_b1$Trial))%>%
-  select(Test:TrialLength_ms)
+  select(Test:TrialLength_ms)%>%
+  separate(Trial, into = c("Type", "Num0"), sep = " ")%>%
+  mutate(Num = Num0)%>%
+  unite(Trial, Type, Num0, sep = "_")%>%
+  select(-Trial)
+Fam <- dplyr::rename(Fam, FamTrialLength_ms = TrialLength_ms)
 untidyMOAP <- left_join(Prediction_Latency, Fam)
 
-# ***********************************
-# STUCK HERE, CAN'T GET THEM TO JOIN PROPERLY, WHYYYYYYYYYY
 # Join to Attention
-# untidyMOAP1 <- full_join(untidyMOAP, FixDur_Fam, by = c("ID", "Trial"))
+untidyMOAP <-   full_join(untidyMOAP, FixDur_Split)%>%
+  dplyr::rename(Trial_Num = Num)
 
-# ***********************************
+untidyMOAP <- untidyMOAP[c(1, 2, 6, 4:5, 7:13, 3, 14:18)]
+  
+MOAP <- arrange(untidyMOAP, Test, ID, Trial_Num)
 
-
-# untidyMOAP1 <- arrange(untidyMOAP1, Test, ID, Trial)
-
-# Transform AOI fix times to ms
-# untidyMOAP1 <- untidyMOAP1 %>%
-#  transform(Fix_Screen = Time_Attending * 1000) %>%
-  # Calculate Sample Rate
-#  transform(Screen_Att = Fix_Screen / TrialLength_ms)
-# # Separate Trial Numbers
-# MOAP <- MOAP %>%
-#   separate(Trial, into = c("Trial_Type", "Trial_Num"), sep = "_")
-# 
-# write_excel_csv(MOAP, "data/MOAP.csv")
+write_excel_csv(MOAP, "data/MOAP.csv")
 ```
 
 

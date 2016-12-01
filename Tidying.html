@@ -247,6 +247,21 @@ AOIfix &lt;-<span class="st"> </span>dplyr::<span class="kw">rename</span>(AOIfi
                         <span class="dt">Trial =</span> SegmentName,
                         <span class="dt">TrialLength_ms =</span> SegmentDuration,
                         <span class="dt">FixTime =</span> RecordingTimestamp)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># This is to ensure the subsequent scripts run clean. Sometimes Tobii has weird artificats that duplicate AOI hits at the same fixation point. The output table of this code will sum how many values exist for the AOI, sum should always be n= 5 [Test], n = 4 [Fam]. If there is a duplicate that needs to be found/excluded, it will be n = 9 or 8.</span>
+
+<span class="co"># Gather AOIs and test for correct sums</span>
+AOI_sums &lt;-<span class="st"> </span>AOIfix %&gt;%
+<span class="st">  </span><span class="co"># gather all of the variables of interest</span>
+<span class="st">  </span><span class="kw">gather</span>(Var, Val, -(ID:FixationIndex)) %&gt;%
+<span class="st">  </span><span class="co"># remove extra number from variable</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Var =</span> stringr::<span class="kw">str_replace_all</span>(Var, <span class="st">&#39;.[:digit:]+&#39;</span>, <span class="st">&#39;&#39;</span>), <span class="dt">Val =</span> <span class="kw">as.numeric</span>(Val)) %&gt;%
+<span class="st">  </span><span class="co"># remove rows with missing values</span>
+<span class="st">  </span><span class="kw">na.omit</span>() %&gt;%
+<span class="st">  </span><span class="co"># Group by ID and trial info</span>
+<span class="st">  </span><span class="kw">group_by</span>(Test, ID, Trial, FixationIndex) %&gt;%
+<span class="st">  </span>dplyr::<span class="kw">mutate</span>(<span class="dt">n =</span> <span class="kw">n</span>()) %&gt;%
+<span class="st">  </span><span class="kw">ungroup</span>() %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(-n, Test, ID, Trial, TrialLength_ms, FixTime, FixationIndex, Var)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Gather AOIs</span>
 AOI_grouped &lt;-<span class="st"> </span>AOIfix %&gt;%
 <span class="st">  </span><span class="co"># gather all of the variables of interest</span>
@@ -338,7 +353,7 @@ hand_pred &lt;-<span class="st"> </span>tidyhand %&gt;%
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Prediction =</span> hand_fix +<span class="st"> </span>d_fix +<span class="st"> </span>g_fix, <span class="dt">hand_fix =</span> <span class="ot">NULL</span>, <span class="dt">d_fix =</span> <span class="ot">NULL</span>, <span class="dt">g_fix =</span> <span class="ot">NULL</span>)
 hand_pred$Hand_Prediction &lt;-<span class="st"> </span><span class="kw">factor</span>(hand_pred$Hand_Prediction,
                            <span class="dt">levels =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),
-                           <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;screen&quot;</span>, <span class="st">&quot;hand&quot;</span>, <span class="st">&quot;distracter&quot;</span>, <span class="st">&quot;goal&quot;</span>))
+                           <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;screen&quot;</span>, <span class="st">&quot;hand&quot;</span>, <span class="st">&quot;Distracter&quot;</span>, <span class="st">&quot;Goal&quot;</span>))
 hand_pred &lt;-<span class="st"> </span>hand_pred[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, hand_pred$Trial),]
 hand_pred &lt;-<span class="st"> </span>hand_pred[!<span class="kw">grepl</span>(<span class="st">&quot;screen&quot;</span>, hand_pred$Hand_Prediction),]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Calculate Latency</span>
@@ -364,8 +379,8 @@ nopred &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_h1, h
 <span class="co"># rename Var to no prediction, drop other useless columns</span>
 nopred &lt;-<span class="st"> </span>nopred %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, nopred$Trial))%&gt;%
-<span class="st">  </span><span class="co"># rename Var to NLTH, drop other useless columns</span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Prediction =</span> <span class="st">&quot;No Look to Hand&quot;</span>)%&gt;%
+<span class="st">  </span><span class="co"># rename Var to NP, drop other useless columns</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Prediction =</span> <span class="st">&quot;No Prediction&quot;</span>)%&gt;%
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Latency =</span> <span class="ot">NA</span>)%&gt;%
 <span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
 
@@ -377,7 +392,6 @@ FamFix &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_h1, h
 <span class="co"># rename Var to no prediction, drop other useless columns</span>
 FamFix &lt;-<span class="st"> </span>FamFix %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, FamFix$Trial))%&gt;%
-<span class="st">  </span><span class="co"># rename Var to NLTH, drop other useless columns</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Prediction =</span> <span class="ot">NA</span>)%&gt;%
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Hand_Latency =</span> <span class="ot">NA</span>)%&gt;%
 <span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
@@ -389,19 +403,12 @@ hand_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(hand_df, Fam
 hand_df &lt;-<span class="st"> </span><span class="kw">select</span>(hand_df, -FixTime)
 
 <span class="co"># Factor and add _ before numbers</span>
-hand_df_Fam &lt;-<span class="st"> </span>hand_df[!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, hand_df$Trial),]
-hand_df_Fam &lt;-<span class="st"> </span>hand_df_Fam %&gt;%
-<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
-hand_df_Fam &lt;-<span class="st"> </span><span class="kw">unite</span>(hand_df_Fam, Trial, Type, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
-
 hand_df_TT &lt;-<span class="st"> </span>hand_df[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, hand_df$Trial),]
 hand_df_TT &lt;-<span class="st"> </span>hand_df_TT %&gt;%
-<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type1&quot;</span>, <span class="st">&quot;Type2&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
-hand_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(hand_df_TT, Trial, Type1, Type2, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
-hand_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(hand_df_TT, Trial, Trial, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
-
-<span class="co"># Join them back together</span>
-hand_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(hand_df_TT,hand_df_Fam)</code></pre></div>
+<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type1&quot;</span>, <span class="st">&quot;Type2&quot;</span>, <span class="st">&quot;Num0&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
+hand_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(hand_df_TT, Trial, Type1, Type2, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Num =</span> Num0)
+hand_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(hand_df_TT, Trial, Trial, Num0, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(plyr)
 AOI_b &lt;-<span class="st"> </span>AOI_Body %&gt;%
 <span class="st">  </span><span class="co"># gather all of the variables of interest</span>
@@ -469,7 +476,7 @@ body_pred &lt;-<span class="st"> </span>tidybody %&gt;%
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Prediction =</span> body_fix +<span class="st"> </span>d_fix +<span class="st"> </span>g_fix, <span class="dt">body_fix =</span> <span class="ot">NULL</span>, <span class="dt">d_fix =</span> <span class="ot">NULL</span>, <span class="dt">g_fix =</span> <span class="ot">NULL</span>)
 body_pred$Body_Prediction &lt;-<span class="st"> </span><span class="kw">factor</span>(body_pred$Body_Prediction,
                            <span class="dt">levels =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),
-                           <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;screen&quot;</span>, <span class="st">&quot;body&quot;</span>, <span class="st">&quot;distracter&quot;</span>, <span class="st">&quot;goal&quot;</span>))
+                           <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;screen&quot;</span>, <span class="st">&quot;body&quot;</span>, <span class="st">&quot;Distracter&quot;</span>, <span class="st">&quot;Goal&quot;</span>))
 body_pred &lt;-<span class="st"> </span>body_pred[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, body_pred$Trial),]
 body_pred &lt;-<span class="st"> </span>body_pred[!<span class="kw">grepl</span>(<span class="st">&quot;screen&quot;</span>, body_pred$Body_Prediction),]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Calculate Latency</span>
@@ -495,8 +502,8 @@ nopred &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_b1, b
 <span class="co"># rename Var to no prediction, drop other useless columns</span>
 nopred &lt;-<span class="st"> </span>nopred %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, nopred$Trial))%&gt;%
-<span class="st">  </span><span class="co"># rename Var to NLTB, drop other useless columns</span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Prediction =</span> <span class="st">&quot;No Look to body&quot;</span>)%&gt;%
+<span class="st">  </span><span class="co"># rename Var to NP, drop other useless columns</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Prediction =</span> <span class="st">&quot;No Prediction&quot;</span>)%&gt;%
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Latency =</span> <span class="ot">NA</span>)%&gt;%
 <span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
 
@@ -508,7 +515,6 @@ FamFix &lt;-<span class="st"> </span><span class="kw">anti_join</span>(AOI_b1, b
 <span class="co"># rename Var to no prediction, drop other useless columns</span>
 FamFix &lt;-<span class="st"> </span>FamFix %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, FamFix$Trial))%&gt;%
-<span class="st">  </span><span class="co"># rename Var to NLTH, drop other useless columns</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Prediction =</span> <span class="ot">NA</span>)%&gt;%
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Body_Latency =</span> <span class="ot">NA</span>)%&gt;%
 <span class="st">  </span><span class="kw">select</span>(-FixationIndex, -Var, -Val)
@@ -520,19 +526,12 @@ body_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(body_df, Fam
 body_df &lt;-<span class="st"> </span><span class="kw">select</span>(body_df, -FixTime)
 
 <span class="co"># Factor and add _ before numbers</span>
-body_df_Fam &lt;-<span class="st"> </span>body_df[!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, body_df$Trial),]
-body_df_Fam &lt;-<span class="st"> </span>body_df_Fam %&gt;%
-<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
-body_df_Fam &lt;-<span class="st"> </span><span class="kw">unite</span>(body_df_Fam, Trial, Type, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
-
 body_df_TT &lt;-<span class="st"> </span>body_df[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, body_df$Trial),]
 body_df_TT &lt;-<span class="st"> </span>body_df_TT %&gt;%
-<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type1&quot;</span>, <span class="st">&quot;Type2&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
-body_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(body_df_TT, Trial, Type1, Type2, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
-body_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(body_df_TT, Trial, Trial, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
-
-<span class="co"># Join them back together</span>
-body_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(body_df_TT,body_df_Fam)</code></pre></div>
+<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type1&quot;</span>, <span class="st">&quot;Type2&quot;</span>, <span class="st">&quot;Num0&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
+body_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(body_df_TT, Trial, Type1, Type2, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Num =</span> Num0)
+body_df_TT &lt;-<span class="st"> </span><span class="kw">unite</span>(body_df_TT, Trial, Trial, Num0, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Remove the first duplicated part of the column names</span>
 <span class="kw">colnames</span>(FixDur06_10)&lt;-<span class="kw">sub</span>(<span class="st">&quot;^[^_]*_&quot;</span>,<span class="st">&quot;&quot;</span>, <span class="kw">colnames</span>(FixDur06_10))
 <span class="kw">colnames</span>(FixDur11_36)&lt;-<span class="kw">sub</span>(<span class="st">&quot;^[^_]*_&quot;</span>,<span class="st">&quot;&quot;</span>, <span class="kw">colnames</span>(FixDur11_36))
@@ -549,52 +548,58 @@ FixDur[FixDur==<span class="dv">0</span>] &lt;-<span class="st"> </span><span cl
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Gather Trials</span>
 FixDurGrouped &lt;-<span class="st"> </span>FixDur %&gt;%
 <span class="st">  </span><span class="co"># gather all of the variables of interest</span>
-<span class="st">  </span><span class="kw">gather</span>(Var, Time_Attending, -(ID))%&gt;%
+<span class="st">  </span><span class="kw">gather</span>(Var, Time_Attending, -(ID:Test))%&gt;%
 <span class="st">  </span><span class="co"># Separate Trial and AOI</span>
 <span class="st">  </span><span class="kw">separate</span>(Var, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Trial&quot;</span>, <span class="st">&quot;AOI&quot;</span>, <span class="st">&quot;Sum&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>) %&gt;%
 <span class="st">  </span><span class="co"># Deselect Sum</span>
 <span class="st">  </span><span class="kw">select</span>(-Sum)%&gt;%
 <span class="st">  </span><span class="co"># remove rows with missing values</span>
 <span class="st">  </span><span class="kw">na.omit</span>()%&gt;%
-<span class="st">  </span><span class="kw">filter</span>(AOI ==<span class="st"> &quot;Screen&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">select</span>(-AOI) %&gt;%
 <span class="st">  </span><span class="co"># Group </span>
 <span class="st">  </span><span class="kw">group_by</span>(ID, Trial)
 
-<span class="co"># Factor and add _ before numbers</span>
+<span class="co"># Factor and add _ before numbers Fam</span>
 FixDur_Fam &lt;-<span class="st"> </span>FixDurGrouped[!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, FixDurGrouped$Trial),]
 FixDur_Fam &lt;-<span class="st"> </span>FixDur_Fam %&gt;%
 <span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)
-FixDur_Fam &lt;-<span class="st"> </span><span class="kw">unite</span>(FixDur_Fam, Trial, Type, Num, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)</code></pre></div>
+FixDur_Fam &lt;-<span class="st"> </span><span class="kw">unite</span>(FixDur_Fam, Trial, Type, AOI, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">spread</span>(Trial, Time_Attending)
+
+<span class="co"># Factor and add _ before numbers Test</span>
+FixDur_Test &lt;-<span class="st"> </span>FixDurGrouped[!<span class="kw">grepl</span>(<span class="st">&quot;Fam&quot;</span>, FixDurGrouped$Trial),]
+FixDur_Test &lt;-<span class="st"> </span>FixDur_Test %&gt;%
+<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type&quot;</span>, <span class="st">&quot;Type2&quot;</span>, <span class="st">&quot;Num&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(-Type2)
+FixDur_Test &lt;-<span class="st"> </span><span class="kw">unite</span>(FixDur_Test, Trial, Type, AOI, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">spread</span>(Trial, Time_Attending)
+
+<span class="co"># Join df</span>
+FixDur_Split &lt;-<span class="st"> </span><span class="kw">left_join</span>(FixDur_Fam, FixDur_Test)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Join Hand and Body</span>
-Prediction_Latency &lt;-<span class="st"> </span><span class="kw">left_join</span>(hand_df, body_df)
+Prediction_Latency &lt;-<span class="st"> </span><span class="kw">left_join</span>(hand_df_TT, body_df_TT)%&gt;%
+<span class="st">  </span>dplyr::<span class="kw">rename</span>(<span class="dt">TestTrialLength_ms =</span> TrialLength_ms)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(-Trial)
 
 <span class="co"># Join to Trial Length for Fam</span>
 Fam &lt;-<span class="st"> </span>AOI_b1 %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(!<span class="kw">grepl</span>(<span class="st">&quot;Test&quot;</span>, AOI_b1$Trial))%&gt;%
-<span class="st">  </span><span class="kw">select</span>(Test:TrialLength_ms)
+<span class="st">  </span><span class="kw">select</span>(Test:TrialLength_ms)%&gt;%
+<span class="st">  </span><span class="kw">separate</span>(Trial, <span class="dt">into =</span> <span class="kw">c</span>(<span class="st">&quot;Type&quot;</span>, <span class="st">&quot;Num0&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Num =</span> Num0)%&gt;%
+<span class="st">  </span><span class="kw">unite</span>(Trial, Type, Num0, <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(-Trial)
+Fam &lt;-<span class="st"> </span>dplyr::<span class="kw">rename</span>(Fam, <span class="dt">FamTrialLength_ms =</span> TrialLength_ms)
 untidyMOAP &lt;-<span class="st"> </span><span class="kw">left_join</span>(Prediction_Latency, Fam)
 
-<span class="co"># ***********************************</span>
-<span class="co"># STUCK HERE, CAN&#39;T GET THEM TO JOIN PROPERLY, WHYYYYYYYYYY</span>
 <span class="co"># Join to Attention</span>
-<span class="co"># untidyMOAP1 &lt;- full_join(untidyMOAP, FixDur_Fam, by = c(&quot;ID&quot;, &quot;Trial&quot;))</span>
+untidyMOAP &lt;-<span class="st">   </span><span class="kw">full_join</span>(untidyMOAP, FixDur_Split)%&gt;%
+<span class="st">  </span>dplyr::<span class="kw">rename</span>(<span class="dt">Trial_Num =</span> Num)
 
-<span class="co"># ***********************************</span>
+untidyMOAP &lt;-<span class="st"> </span>untidyMOAP[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">6</span>, <span class="dv">4</span>:<span class="dv">5</span>, <span class="dv">7</span>:<span class="dv">13</span>, <span class="dv">3</span>, <span class="dv">14</span>:<span class="dv">18</span>)]
+  
+MOAP &lt;-<span class="st"> </span><span class="kw">arrange</span>(untidyMOAP, Test, ID, Trial_Num)
 
-
-<span class="co"># untidyMOAP1 &lt;- arrange(untidyMOAP1, Test, ID, Trial)</span>
-
-<span class="co"># Transform AOI fix times to ms</span>
-<span class="co"># untidyMOAP1 &lt;- untidyMOAP1 %&gt;%</span>
-<span class="co">#  transform(Fix_Screen = Time_Attending * 1000) %&gt;%</span>
-  <span class="co"># Calculate Sample Rate</span>
-<span class="co">#  transform(Screen_Att = Fix_Screen / TrialLength_ms)</span>
-<span class="co"># # Separate Trial Numbers</span>
-<span class="co"># MOAP &lt;- MOAP %&gt;%</span>
-<span class="co">#   separate(Trial, into = c(&quot;Trial_Type&quot;, &quot;Trial_Num&quot;), sep = &quot;_&quot;)</span>
-<span class="co"># </span>
-<span class="co"># write_excel_csv(MOAP, &quot;data/MOAP.csv&quot;)</span></code></pre></div>
+<span class="kw">write_excel_csv</span>(MOAP, <span class="st">&quot;data/MOAP.csv&quot;</span>)</code></pre></div>
 
 
 

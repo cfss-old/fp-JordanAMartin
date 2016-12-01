@@ -1,0 +1,57 @@
+---
+title: "Statistical Analysis"
+---
+
+```{r Load Data, include=FALSE}
+library(tidyverse)
+library(gridExtra)
+
+MOAP <- read_csv("data/MOAP.csv")
+# Fix pesky `` issue
+names(MOAP)[1] <- "Test"
+# Drop NA rows
+MOAP <- drop_na(MOAP, Hand_Prediction, Body_Prediction)
+```
+
+#### Exclusions
+
+A total of 12 infants were excluded from analysis do to low calibration (n = 4), fussiness (n = 2), and sample rate < 50% (n = 6).
+
+```{r Exclusions, include=FALSE}
+MOAP <- MOAP %>%
+  filter(ID != "M08" & ID != "M11" & ID != "M14" & ID != "M17" & ID != "M18" & ID != "M25" & ID != "M26" & ID != "M27" & ID != "M30" & ID != "M31"  & ID != "M32"  & ID != "M33")
+```
+
+#### Q1: Does varying initial fixation AOI from hand to body change prediction response?
+
+```{r Prediction Proportions, echo=FALSE, message=FALSE, warning=FALSE}
+# Graph Proportion of Predictions for each initial AOI
+Hand_Pred <- ggplot(MOAP) +
+  geom_bar(mapping = aes(x = Hand_Prediction, y = ..prop.., group = 1)) +
+  labs(x = "Prediction", y = "Proportion of Predictive Fixations")
+Body_Pred <- ggplot(MOAP) +
+  geom_bar(mapping = aes(x = Body_Prediction, y = ..prop.., group = 1)) +
+  labs(x = "Prediction", y = "Proportion of Predictive Fixations")
+grid.arrange(Hand_Pred, Body_Pred, nrow=1)
+```
+
+The next anlysis will examine infants’ predictive fixations to either the prior goal or prior location object across test trials for the two AOI definitions. Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal (M=__, SD=__, t(__)=__, p = __), whereas when using the Hand definition, infants responded at chance levels (M=__, SD=__, t(__)=__, p = __).
+
+```{r }
+
+```
+
+
+```{r Fam Attention, eval=FALSE, include=FALSE}
+
+
+# Calculate Sample Rate: Divide AOI Attention by Trial Length, drop trial length variables
+transform(MOAP, Fam_Screen_Att = Fam_Screen / FamTrialLength_ms)
+```
+
+```{r, include=FALSE}
+# library(DT)
+# datatable(x)
+```
+
+
