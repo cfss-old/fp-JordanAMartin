@@ -1,8 +1,7 @@
 # Final project
 
-Link to raw data []().
+Infant social attention and prediction.
 
-[Data wrangling](Tidying.html).
+Repository for [raw and tidy data](data).
 
-
-You can see the rendered site [here](https://uc-cfss.github.io/fp-JordanAMartin/).
+Github io page at [fp-JordanAMartin](https://uc-cfss.github.io/fp-JordanAMartin/).

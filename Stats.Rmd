@@ -1,12 +1,36 @@
 ---
-title: "Statistical Analysis"
+title: "TITLE"
+author: "Jordan Martin"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    collapsed: false
 ---
 
-```{r Load Data, include=FALSE}
+```{r Load Libraries, cache=FALSE, include=FALSE}
 library(tidyverse)
 library(gridExtra)
 library(stats)
 library(pander)
+```
+
+## Method
+
+#### Eye-tracking Paradigm
+
+Eighteen-month-old infants were shown an eye-tracking paradigm... 
+  
+Familiarization videos showed an agent reaching for and grasping one of two toys. Four different agents and toy-pairs were shown. Test trials were shown twice, each after familiarization, for a total of 8 Test Trials.
+
+#### Data Reduction
+
+[Data Reduction](Tidying.html).
+
+
+```{r Load Data, echo=TRUE, message=FALSE, warning=FALSE}
 MOAP <- read_csv("data/MOAP.csv")
 # Fix pesky `` issue
 names(MOAP)[1] <- "Test"
@@ -18,14 +42,14 @@ MOAP <- drop_na(MOAP, Hand_Prediction, Body_Prediction)
 
 A total of 12 infants were excluded from analysis do to low calibration (n = 4), fussiness (n = 2), and sample rate < 50% (n = 6).
 
-```{r Exclusions, include=FALSE}
+```{r Exclusions, echo=TRUE, message=FALSE, warning=FALSE}
 MOAP <- MOAP %>%
   filter(ID != "M08" & ID != "M11" & ID != "M14" & ID != "M17" & ID != "M18" & ID != "M25" & ID != "M26" & ID != "M27" & ID != "M30" & ID != "M31"  & ID != "M32"  & ID != "M33")
 ```
 
 #### Q1: Does varying initial fixation AOI from hand to body change prediction response?
 
-```{r Prediction Proportions, echo=FALSE, message=FALSE, warning=FALSE}
+```{r Prediction Proportions, echo=TRUE, message=FALSE, warning=FALSE}
 # Graph Proportion of Predictions for each initial AOI
 Hand_Pred <- ggplot(MOAP) +
   geom_bar(mapping = aes(x = Hand_Prediction, y = ..prop.., group = 1)) +
