@@ -199,7 +199,7 @@ $(document).ready(function () {
 </style>
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("show" === "show");
+  window.initializeCodeFolding("hide" === "show");
 });
 </script>
 
@@ -318,6 +318,9 @@ div.tocify {
         <li>
   <a href="Stats.html">Analysis</a>
 </li>
+<li>
+  <a href="https://github.com/uc-cfss/fp-JordanAMartin">GitHub</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -345,42 +348,49 @@ div.tocify {
 </div>
 
 
-<div id="method" class="section level2">
-<h2>Method</h2>
-<div id="eye-tracking-paradigm" class="section level4">
-<h4>Eye-tracking Paradigm</h4>
-<p>Eighteen-month-old infants were shown an eye-tracking paradigm…</p>
-<p>Familiarization videos showed an agent reaching for and grasping one of two toys. Four different agents and toy-pairs were shown. Test trials were shown twice, each after familiarization, for a total of 8 Test Trials.</p>
-</div>
-<div id="data-reduction" class="section level4">
-<h4>Data Reduction</h4>
-<p><a href="Tidying.html">Data Reduction</a>.</p>
+<h2>
+Method
+</h2>
+<h3>
+Eye-tracking Paradigm
+</h3>
+<p>Eighteen-month-old infants were shown an eye-tracking paradigm… Familiarization videos showed an agent reaching for and grasping one of two toys. Four different agents and toy-pairs were shown. Test trials were shown twice, each after familiarization, for a total of 8 Test Trials.</p>
+<h3>
+<a href="Tidying.html">Data Reduction</a>
+</h3>
+<p>Load in data.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">MOAP &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/MOAP.csv&quot;</span>)
 <span class="co"># Fix pesky `` issue</span>
 <span class="kw">names</span>(MOAP)[<span class="dv">1</span>] &lt;-<span class="st"> &quot;Test&quot;</span>
 <span class="co"># Drop NA rows</span>
 MOAP &lt;-<span class="st"> </span><span class="kw">drop_na</span>(MOAP, Hand_Prediction, Body_Prediction)</code></pre></div>
-</div>
-<div id="exclusions" class="section level4">
-<h4>Exclusions</h4>
+<h3>
+Exclusions
+</h3>
 <p>A total of 12 infants were excluded from analysis do to low calibration (n = 4), fussiness (n = 2), and sample rate &lt; 50% (n = 6).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">MOAP &lt;-<span class="st"> </span>MOAP %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(ID !=<span class="st"> &quot;M08&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M11&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M14&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M17&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M18&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M25&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M26&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M27&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M30&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M31&quot;</span>  &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M32&quot;</span>  &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M33&quot;</span>)</code></pre></div>
-</div>
-<div id="q1-does-varying-initial-fixation-aoi-from-hand-to-body-change-prediction-response" class="section level4">
-<h4>Q1: Does varying initial fixation AOI from hand to body change prediction response?</h4>
+<h2>
+Results
+</h2>
+<h3>
+Demographics
+</h3>
+<h3>
+Question #1
+</h3>
+<p>Does varying initial fixation AOI from hand to body change prediction response?</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Graph Proportion of Predictions for each initial AOI</span>
 Hand_Pred &lt;-<span class="st"> </span><span class="kw">ggplot</span>(MOAP) +
 <span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">x =</span> Hand_Prediction, <span class="dt">y =</span> ..prop.., <span class="dt">group =</span> <span class="dv">1</span>)) +
-<span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Prediction&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Proportion of Predictive Fixations&quot;</span>)
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;From Hand&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Prediction&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Proportion of Predictive Fixations&quot;</span>)
 Body_Pred &lt;-<span class="st"> </span><span class="kw">ggplot</span>(MOAP) +
 <span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">x =</span> Body_Prediction, <span class="dt">y =</span> ..prop.., <span class="dt">group =</span> <span class="dv">1</span>)) +
-<span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Prediction&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Proportion of Predictive Fixations&quot;</span>)
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;From Body&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Prediction&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Proportion of Predictive Fixations&quot;</span>)
 <span class="kw">grid.arrange</span>(Hand_Pred, Body_Pred, <span class="dt">nrow=</span><span class="dv">1</span>)</code></pre></div>
 <p><img src="Stats_files/figure-html/Prediction%20Proportions-1.png" width="672" /></p>
-<p>The next analysis will examine infants’ predictive fixations to either the prior goal or prior location object across test trials for the two AOI definitions. Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal (M=<strong>, SD=</strong>, t(<strong>)=</strong>, p = <strong>), whereas when using the Hand definition, infants responded at chance levels (M=0.48, SD=</strong>, t(<strong>)=</strong>, p = __).</p>
+<p>The graphs indicate that more predictions are revealed by an anlysis of fixations originating from the body than the hand.Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal. (M=<strong>, SD=</strong>, t(<strong>)=</strong>, p = (<strong>), whereas when using the Hand definition, infants responded at chance levels (M=0.48, SD=.50, t(49)=-0.28, p = </strong>).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Recode Predictions</span>
-
 HP &lt;-<span class="st"> </span>MOAP %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(Hand_Prediction !=<span class="st"> &quot;No Prediction&quot;</span>)%&gt;%
 <span class="st">  </span><span class="kw">select</span>(ID, Trial_Num, Hand_Prediction, Hand_Latency, FamTrialLength_ms, Fam_Screen)%&gt;%
@@ -436,7 +446,8 @@ output &lt;-<span class="st"> </span><span class="kw">t.test</span>(HP$Predictio
 </tr>
 </tbody>
 </table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">BP &lt;-<span class="st"> </span>MOAP %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Recode Predictions</span>
+BP &lt;-<span class="st"> </span>MOAP %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(Body_Prediction !=<span class="st"> &quot;No Prediction&quot;</span>)%&gt;%
 <span class="st">  </span><span class="kw">select</span>(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%&gt;%
 <span class="st">  </span><span class="kw">na.omit</span>()%&gt;%
@@ -491,8 +502,24 @@ df1 &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="kw
 </tr>
 </tbody>
 </table>
-</div>
-</div>
+<h3>
+Question #2
+</h3>
+<p>Does latency vary between type of prediction?<br />
+* Using Body…<br />
+* Stat - Examine if infants “differ reliably in the time required to generate prior goal predictions (M=<strong>, SD=</strong>) compared to prior location predictions (M=<strong>, SD=</strong>; t(<strong>)=</strong>, p = __).”</p>
+<h3>
+Question #3
+</h3>
+<p>Can attention to Fam predict whether or not an infant will generate a prediction?<br />
+* Stat - Linear regression for fam attention to predict infants generation of prediction<br />
+* Binomial - Yes/No</p>
+<h3>
+Question #4
+</h3>
+<p>Can attention to Fam predict what type of prediction infants will generate when they do make a prediction?<br />
+* Stat - Linear regression for fam attention to predict infants type of prediction<br />
+* Binomial - Goal/Location</p>
 
 
 

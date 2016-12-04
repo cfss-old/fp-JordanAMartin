@@ -5,6 +5,8 @@ navbar:
   left:
     - text: "Analysis"
       href: Stats.html
+    - text: "GitHub"
+      href: https://github.com/uc-cfss/fp-JordanAMartin
 output:
   html_document:
     theme: spacelab

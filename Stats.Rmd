@@ -6,8 +6,7 @@ output:
   html_document:
     toc: true
     toc_float: true
-    code_folding: show
-    collapsed: false
+    code_folding: hide
 ---
 
 ```{r Load Libraries, cache=FALSE, include=FALSE}
@@ -17,19 +16,15 @@ library(stats)
 library(pander)
 ```
 
-## Method
+<h2> Method </h2>
 
-#### Eye-tracking Paradigm
+<h3> Eye-tracking Paradigm </h3>
 
-Eighteen-month-old infants were shown an eye-tracking paradigm... 
-  
-Familiarization videos showed an agent reaching for and grasping one of two toys. Four different agents and toy-pairs were shown. Test trials were shown twice, each after familiarization, for a total of 8 Test Trials.
+Eighteen-month-old infants were shown an eye-tracking paradigm... Familiarization videos showed an agent reaching for and grasping one of two toys. Four different agents and toy-pairs were shown. Test trials were shown twice, each after familiarization, for a total of 8 Test Trials.
 
-#### Data Reduction
+<h3> [Data Reduction](Tidying.html) </h3>
 
-[Data Reduction](Tidying.html).
-
-
+Load in data.
 ```{r Load Data, echo=TRUE, message=FALSE, warning=FALSE}
 MOAP <- read_csv("data/MOAP.csv")
 # Fix pesky `` issue
@@ -38,7 +33,7 @@ names(MOAP)[1] <- "Test"
 MOAP <- drop_na(MOAP, Hand_Prediction, Body_Prediction)
 ```
 
-#### Exclusions
+<h3> Exclusions </h3>
 
 A total of 12 infants were excluded from analysis do to low calibration (n = 4), fussiness (n = 2), and sample rate < 50% (n = 6).
 
@@ -47,24 +42,33 @@ MOAP <- MOAP %>%
   filter(ID != "M08" & ID != "M11" & ID != "M14" & ID != "M17" & ID != "M18" & ID != "M25" & ID != "M26" & ID != "M27" & ID != "M30" & ID != "M31"  & ID != "M32"  & ID != "M33")
 ```
 
-#### Q1: Does varying initial fixation AOI from hand to body change prediction response?
+<h2> Results </h2>
+
+<h3> Demographics </h3>
+
+```{r}
+
+```
+
+<h3> Question #1 </h3>
+
+Does varying initial fixation AOI from hand to body change prediction response?
 
 ```{r Prediction Proportions, echo=TRUE, message=FALSE, warning=FALSE}
 # Graph Proportion of Predictions for each initial AOI
 Hand_Pred <- ggplot(MOAP) +
   geom_bar(mapping = aes(x = Hand_Prediction, y = ..prop.., group = 1)) +
-  labs(x = "Prediction", y = "Proportion of Predictive Fixations")
+  labs(title = "From Hand", x = "Prediction", y = "Proportion of Predictive Fixations")
 Body_Pred <- ggplot(MOAP) +
   geom_bar(mapping = aes(x = Body_Prediction, y = ..prop.., group = 1)) +
-  labs(x = "Prediction", y = "Proportion of Predictive Fixations")
+  labs(title = "From Body", x = "Prediction", y = "Proportion of Predictive Fixations")
 grid.arrange(Hand_Pred, Body_Pred, nrow=1)
 ```
 
-The next analysis will examine infants’ predictive fixations to either the prior goal or prior location object across test trials for the two AOI definitions. Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal (M=__, SD=__, t(__)=__, p = __), whereas when using the Hand definition, infants responded at chance levels (M=0.48, SD=__, t(__)=__, p = __).
+The graphs indicate that more predictions are revealed by an anlysis of fixations originating from the body than the hand.Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal. &#40;M=__, SD=__, t&#40;__&#41;=__, p = &#40;__&#41;, whereas when using the Hand definition, infants responded at chance levels &#40;M=0.48, SD=.50, t&#40;49&#41;=-0.28, p = __&#41;.
 
-```{r }
+```{r Hand AOI, echo=TRUE, message=FALSE, warning=FALSE}
 # Recode Predictions
-
 HP <- MOAP %>%
   filter(Hand_Prediction != "No Prediction")%>%
   select(ID, Trial_Num, Hand_Prediction, Hand_Latency, FamTrialLength_ms, Fam_Screen)%>%
@@ -77,7 +81,10 @@ colnames(df)[2] <- "SD"
 output <- t.test(HP$Prediction, mu=.5)
 pander(df)
 pander(output)
+```
 
+```{r Body AOI, echo=TRUE, message=FALSE, warning=FALSE}
+# Recode Predictions
 BP <- MOAP %>%
   filter(Body_Prediction != "No Prediction")%>%
   select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
@@ -92,17 +99,22 @@ output1 <- t.test(BP$Prediction, mu=.5)
 pander(output1)
 ```
 
+<h3> Question #2 </h3>
+Does latency vary between type of prediction?  
+    * Using Body…  
+    * Stat - Examine if infants “differ reliably in the time required to generate prior goal predictions (M=__, SD=__) compared to prior location predictions (M=__, SD=__; t(__)=__, p = __).”   
 
-```{r Fam Attention, eval=FALSE, include=FALSE}
+<h3> Question #3 </h3>
+Can attention to Fam predict whether or not an infant will generate a prediction?  
+    * Stat - Linear regression for fam attention to predict infants generation of prediction  
+    * Binomial - Yes/No  
 
+<h3> Question #4 </h3>
+Can attention to Fam predict what type of prediction infants will generate when they do make a prediction?  
+    * Stat - Linear regression for fam attention to predict infants type of prediction  
+    * Binomial - Goal/Location  
 
+```{r Fam Attention, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 # Calculate Sample Rate: Divide AOI Attention by Trial Length, drop trial length variables
 transform(MOAP, Fam_Screen_Att = Fam_Screen / FamTrialLength_ms)
 ```
-
-```{r, include=FALSE}
-# library(DT)
-# datatable(x)
-```
-
-
