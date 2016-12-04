@@ -3,10 +3,8 @@ output_dir: "."
 navbar:
   title: "Infant Social Cognition"
   left:
-    - text: "Study Overview"
-      href: index.html
-    - text: "Data Wrangling"
-      href: Tidying.html
+    - text: "Method"
+      href: Method.html
     - text: "Results"
       href: Stats.html
 output:

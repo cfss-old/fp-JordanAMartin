@@ -2,7 +2,7 @@
 
 Link to raw data []().
 
-Link to data wrangling []().
+[Data wrangling](Tidying.html).
 
 
 You can see the rendered site [here](https://uc-cfss.github.io/fp-JordanAMartin/).

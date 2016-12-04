@@ -5,7 +5,8 @@ title: "Statistical Analysis"
 ```{r Load Data, include=FALSE}
 library(tidyverse)
 library(gridExtra)
-
+library(stats)
+library(pander)
 MOAP <- read_csv("data/MOAP.csv")
 # Fix pesky `` issue
 names(MOAP)[1] <- "Test"
@@ -35,10 +36,36 @@ Body_Pred <- ggplot(MOAP) +
 grid.arrange(Hand_Pred, Body_Pred, nrow=1)
 ```
 
-The next anlysis will examine infants’ predictive fixations to either the prior goal or prior location object across test trials for the two AOI definitions. Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal (M=__, SD=__, t(__)=__, p = __), whereas when using the Hand definition, infants responded at chance levels (M=__, SD=__, t(__)=__, p = __).
+The next analysis will examine infants’ predictive fixations to either the prior goal or prior location object across test trials for the two AOI definitions. Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal (M=__, SD=__, t(__)=__, p = __), whereas when using the Hand definition, infants responded at chance levels (M=0.48, SD=__, t(__)=__, p = __).
 
 ```{r }
+# Recode Predictions
 
+HP <- MOAP %>%
+  filter(Hand_Prediction != "No Prediction")%>%
+  select(ID, Trial_Num, Hand_Prediction, Hand_Latency, FamTrialLength_ms, Fam_Screen)%>%
+  na.omit()%>%
+  mutate(Prediction = ifelse(Hand_Prediction == "Distracter", 0, 1))%>%
+  group_by(ID)
+df <- tibble(mean(HP$Prediction), sd(HP$Prediction))
+colnames(df)[1] <- "Mean"
+colnames(df)[2] <- "SD"
+output <- t.test(HP$Prediction, mu=.5)
+pander(df)
+pander(output)
+
+BP <- MOAP %>%
+  filter(Body_Prediction != "No Prediction")%>%
+  select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
+  na.omit()%>%
+  mutate(Prediction = ifelse(Body_Prediction == "Distracter", 0, 1))%>%
+  group_by(ID)
+df1 <- tibble(mean(BP$Prediction), sd(BP$Prediction))
+colnames(df1)[1] <- "Mean"
+colnames(df1)[2] <- "SD"
+pander(df1)
+output1 <- t.test(BP$Prediction, mu=.5)
+pander(output1)
 ```
 
 
