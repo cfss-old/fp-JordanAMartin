@@ -1,9 +1,13 @@
----
-title: "Overview"
-author: "Jordan Martin"
----
+
+
+
 <center>
-## Infant Social Attention During Goal-Directed Action
+## Infant Social Attention During Goal-Directed Action  
+
+
+### Jordan Martin  
+
+
 </center>
 
 Developmental research has demonstrated that infants as young as 15-months recruit social information of a scene when making visual predictions. In an eye-tracking paradigm, infants are first familiarized to a video of a female agent acting on one of two toys. In test, infants view a scene in which the locations of the two toys have switched and the experimenter lifts her hand, but does not complete the reaching motion. Infants are said to make goal- or location-based predictions when they preferentially look to the previously grasped toy or previous location in which a reach was performed, respectively, after having first fixated on an area of interest defined about the agent's hand.  
