@@ -11,7 +11,7 @@
 
 <meta name="author" content="Jordan Martin" />
 
-<meta name="date" content="2016-12-07" />
+<meta name="date" content="2016-12-08" />
 
 <title>Infant Social Attention During Goal-Directed Action</title>
 
@@ -343,11 +343,23 @@ div.tocify {
 
 <h1 class="title toc-ignore">Infant Social Attention During Goal-Directed Action</h1>
 <h4 class="author"><em>Jordan Martin</em></h4>
-<h4 class="date"><em>2016-12-07</em></h4>
+<h4 class="date"><em>2016-12-08</em></h4>
 
 </div>
 
 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Cleans up an lm output for pretty printing</span>
+tidy_x &lt;-<span class="st"> </span>function(x, <span class="dt">predictors =</span> <span class="ot">NA</span>) {
+  
+  <span class="kw">tidy</span>(x) %&gt;%
+<span class="st">    </span><span class="kw">rowwise</span>() %&gt;%
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">p.value =</span> <span class="kw">sprintf</span>(<span class="st">&quot;%.3f&quot;</span>, p.value),
+           <span class="dt">p.value =</span> <span class="kw">ifelse</span>(p.value ==<span class="st"> &quot;0.000&quot;</span>, <span class="st">&quot;&lt; .001&quot;</span>, p.value)) %&gt;%
+<span class="st">    </span><span class="kw">select</span>(term, estimate, std.error, statistic, p.value) %&gt;%
+<span class="st">    </span><span class="kw">rename</span>(<span class="st">`</span><span class="dt">$z$ value</span><span class="st">`</span> =<span class="st"> </span>statistic,
+           <span class="st">`</span><span class="dt">$p$ value</span><span class="st">`</span> =<span class="st"> </span>p.value,
+           <span class="st">`</span><span class="dt">std. error</span><span class="st">`</span> =<span class="st"> </span>std.error)
+}</code></pre></div>
 <h2>
 Method
 </h2>
@@ -516,10 +528,10 @@ tests[[<span class="dv">2</span>]] &lt;-<span class="st"> </span><span class="kw
 df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(x) {
       <span class="kw">c</span>(x$statistic,
         x$parameter,
-        <span class="dt">Mean =</span> x$estimate[<span class="dv">1</span>],
+        x$estimate[<span class="dv">1</span>],
        <span class="dt">ci.lower =</span> x$conf.int[<span class="dv">1</span>],
        <span class="dt">ci.upper =</span> x$conf.int[<span class="dv">2</span>],
-       <span class="dt">p.value =</span> x$p.value)
+       <span class="st">`</span><span class="dt">$p$ value</span><span class="st">`</span> =<span class="st"> </span>x$p.value)
     })
 <span class="kw">colnames</span>(df)&lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Hand&quot;</span>, <span class="st">&quot;Body&quot;</span>)
 <span class="kw">kable</span>(<span class="kw">t</span>(df))</code></pre></div>
@@ -529,10 +541,10 @@ df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(
 <th></th>
 <th align="right">t</th>
 <th align="right">df</th>
-<th align="right">Mean.mean of x</th>
+<th align="right">mean of x</th>
 <th align="right">ci.lower</th>
 <th align="right">ci.upper</th>
-<th align="right">p.value</th>
+<th align="right"><span class="math inline">\(p\)</span> value</th>
 </tr>
 </thead>
 <tbody>
@@ -578,7 +590,7 @@ df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(
         x$estimate[<span class="dv">2</span>],
        <span class="dt">ci.lower =</span> x$conf.int[<span class="dv">1</span>],
        <span class="dt">ci.upper =</span> x$conf.int[<span class="dv">2</span>],
-       <span class="dt">p.value =</span> x$p.value)
+       <span class="st">`</span><span class="dt">$p$ value</span><span class="st">`</span> =<span class="st"> </span>x$p.value)
     })
 <span class="kw">kable</span>(<span class="kw">t</span>(df))</code></pre></div>
 <table>
@@ -590,7 +602,7 @@ df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(
 <th align="right">mean in group 1</th>
 <th align="right">ci.lower</th>
 <th align="right">ci.upper</th>
-<th align="right">p.value</th>
+<th align="right"><span class="math inline">\(p\)</span> value</th>
 </tr>
 </thead>
 <tbody>
@@ -605,22 +617,215 @@ df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(
 </tr>
 </tbody>
 </table>
-<p>Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). However, the standard deviations appear relatively high. Mediating factors will be explored next.</p>
+<p>Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). This sample fails to replicate findings that infants demonstrate significantly longer latencies when generating goal predictions. However, the standard deviations appear relatively high. Perhaps attention to the familiarization scene will parse differences in both proportional prediction and latencies to predict.</p>
 <h3>
 Question #3
 </h3>
-<p>Can attention to the scene during the Familiarization trial predict whether or not an infant will generate a prediction?</p>
+<p>Can attention to the scene during the Familiarization trial predict whether or not an infant will generate any prediction?</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Calculate % attention</span>
-Attention &lt;-<span class="st"> </span>PredLat %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Attention =</span> Fam_Screen /<span class="st"> </span>FamTrialLength_ms)</code></pre></div>
-<pre><code>* Stat - Linear regression for fam attention to predict infants generation of prediction  
-* Binomial - Yes/No  </code></pre>
+AttPrediction &lt;-<span class="st"> </span>filtered %&gt;%
+<span class="st">  </span><span class="kw">select</span>(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Attention =</span> Fam_Screen /<span class="st"> </span>FamTrialLength_ms)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Prediction =</span> <span class="kw">ifelse</span>(Body_Prediction ==<span class="st"> &quot;No Prediction&quot;</span>, <span class="dv">0</span>, <span class="dv">1</span>))%&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(FamTrialLength_ms)
+
+<span class="co"># Convert to factor for analysis</span>
+AttPrediction$Prediction &lt;-<span class="st"> </span><span class="kw">as.factor</span>(AttPrediction$Prediction)
+
+<span class="co"># Split model into Train and Test</span>
+train &lt;-<span class="st"> </span>AttPrediction[<span class="dv">1</span>:<span class="dv">110</span>,]
+test &lt;-<span class="st"> </span>AttPrediction[<span class="dv">111</span>:<span class="dv">130</span>,]
+
+<span class="co"># Fit the model</span>
+model &lt;-<span class="st"> </span><span class="kw">glm</span>(Prediction ~<span class="st"> </span>Attention, <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>),<span class="dt">data=</span>train)
+<span class="kw">kable</span>(<span class="kw">tidy_x</span>(model))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std. error</th>
+<th align="right"><span class="math inline">\(z\)</span> value</th>
+<th align="left"><span class="math inline">\(p\)</span> value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-0.1251583</td>
+<td align="right">0.5151169</td>
+<td align="right">-0.2429708</td>
+<td align="left">0.808</td>
+</tr>
+<tr class="even">
+<td align="left">Attention</td>
+<td align="right">1.9391751</td>
+<td align="right">0.8115476</td>
+<td align="right">2.3894782</td>
+<td align="left">0.017</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Test variance</span>
+<span class="kw">kable</span>(<span class="kw">tidy</span>(<span class="kw">anova</span>(model, <span class="dt">test=</span><span class="st">&quot;Chisq&quot;</span>)))</code></pre></div>
+<pre><code>## Warning in tidy.anova(anova(model, test = &quot;Chisq&quot;)): The following column
+## names in ANOVA output were not recognized or transformed: Deviance,
+## Resid..Df, Resid..Dev, Pr..Chi.</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">df</th>
+<th align="right">Deviance</th>
+<th align="right">Resid..Df</th>
+<th align="right">Resid..Dev</th>
+<th align="right">Pr..Chi.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">NULL</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">102</td>
+<td align="right">118.5075</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Attention</td>
+<td align="right">1</td>
+<td align="right">5.863729</td>
+<td align="right">101</td>
+<td align="right">112.6438</td>
+<td align="right">0.015456</td>
+</tr>
+</tbody>
+</table>
+<p>YES!</p>
 <h3>
 Question #4
 </h3>
-<p>Can attention to Fam predict what type of prediction infants will generate when they do make a prediction?<br />
-* Stat - Linear regression for fam attention to predict infants type of prediction<br />
-* Binomial - Goal/Location</p>
+<p>Can attention to the scene during the Familiarization trial predict what type of prediction infants will generate when they do make a prediction?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">AttPredictionType &lt;-<span class="st"> </span>filtered %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(Body_Prediction !=<span class="st"> &quot;No Prediction&quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Attention =</span> Fam_Screen /<span class="st"> </span>FamTrialLength_ms)%&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(FamTrialLength_ms)
+
+<span class="co"># Convert to factor for analysis</span>
+AttPredictionType$Body_Prediction &lt;-<span class="st"> </span><span class="kw">as.factor</span>(AttPredictionType$Body_Prediction)
+
+<span class="co"># Split model into Train and Test</span>
+train &lt;-<span class="st"> </span>AttPredictionType[<span class="dv">1</span>:<span class="dv">79</span>,]
+test &lt;-<span class="st"> </span>AttPredictionType[<span class="dv">80</span>:<span class="dv">95</span>,]
+
+<span class="co"># Fit the model</span>
+model &lt;-<span class="st"> </span><span class="kw">glm</span>(Body_Prediction ~<span class="st"> </span>Attention,
+             <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>),<span class="dt">data=</span>train)
+<span class="kw">kable</span>(<span class="kw">tidy_x</span>(model))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std. error</th>
+<th align="right"><span class="math inline">\(z\)</span> value</th>
+<th align="left"><span class="math inline">\(p\)</span> value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-0.0489836</td>
+<td align="right">0.6386364</td>
+<td align="right">-0.0767003</td>
+<td align="left">0.939</td>
+</tr>
+<tr class="even">
+<td align="left">Attention</td>
+<td align="right">0.6423203</td>
+<td align="right">0.8856490</td>
+<td align="right">0.7252538</td>
+<td align="left">0.468</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Test variance</span>
+<span class="kw">kable</span>(<span class="kw">tidy</span>(<span class="kw">anova</span>(model, <span class="dt">test=</span><span class="st">&quot;Chisq&quot;</span>)))</code></pre></div>
+<pre><code>## Warning in tidy.anova(anova(model, test = &quot;Chisq&quot;)): The following column
+## names in ANOVA output were not recognized or transformed: Deviance,
+## Resid..Df, Resid..Dev, Pr..Chi.</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">df</th>
+<th align="right">Deviance</th>
+<th align="right">Resid..Df</th>
+<th align="right">Resid..Dev</th>
+<th align="right">Pr..Chi.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">NULL</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">73</td>
+<td align="right">99.92110</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Attention</td>
+<td align="right">1</td>
+<td align="right">0.5257359</td>
+<td align="right">72</td>
+<td align="right">99.39537</td>
+<td align="right">0.4684051</td>
+</tr>
+</tbody>
+</table>
+<p>NO!</p>
+<h3>
+Question #5
+</h3>
+<p>Can attention to the scene during the Familiarization trial predict the latency with which infant generate a prediction?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">AttLatency &lt;-<span class="st"> </span>filtered %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(Body_Prediction !=<span class="st"> &quot;No Prediction&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">select</span>(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Attention =</span> Fam_Screen /<span class="st"> </span>FamTrialLength_ms)%&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(FamTrialLength_ms)
+
+Latency_lm &lt;-<span class="st"> </span><span class="kw">lm</span>(Body_Latency ~<span class="st"> </span>Attention, AttLatency)
+<span class="kw">kable</span>(<span class="kw">tidy</span>(Latency_lm))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1938.33</td>
+<td align="right">485.4013</td>
+<td align="right">3.9932527</td>
+<td align="right">0.0001358</td>
+</tr>
+<tr class="even">
+<td align="left">Attention</td>
+<td align="right">-224.42</td>
+<td align="right">697.6524</td>
+<td align="right">-0.3216788</td>
+<td align="right">0.7484676</td>
+</tr>
+</tbody>
+</table>
+<p>No!</p>
 
 
 

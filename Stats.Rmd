@@ -11,10 +11,25 @@ output:
 
 ```{r Load Libraries, cache=FALSE, include=FALSE}
 library(tidyverse)
-library(gridExtra)
 library(stats)
-library(pander)
 library(knitr)
+library(modelr)
+library(broom)
+library(ROCR)
+```
+```{r helper function}
+# Cleans up an lm output for pretty printing
+tidy_x <- function(x, predictors = NA) {
+  
+  tidy(x) %>%
+    rowwise() %>%
+    mutate(p.value = sprintf("%.3f", p.value),
+           p.value = ifelse(p.value == "0.000", "< .001", p.value)) %>%
+    select(term, estimate, std.error, statistic, p.value) %>%
+    rename(`$z$ value` = statistic,
+           `$p$ value` = p.value,
+           `std. error` = std.error)
+}
 ```
 
 <h2> Method </h2>
@@ -132,10 +147,10 @@ tests[[2]] <- t.test(BP$Prediction, mu=.5)
 df <- sapply(tests, function(x) {
       c(x$statistic,
         x$parameter,
-        Mean = x$estimate[1],
+        x$estimate[1],
        ci.lower = x$conf.int[1],
        ci.upper = x$conf.int[2],
-       p.value = x$p.value)
+       `$p$ value` = x$p.value)
     })
 colnames(df)<- c("Hand", "Body")
 kable(t(df))
@@ -164,33 +179,87 @@ df <- sapply(tests, function(x) {
         x$estimate[2],
        ci.lower = x$conf.int[1],
        ci.upper = x$conf.int[2],
-       p.value = x$p.value)
+       `$p$ value` = x$p.value)
     })
 kable(t(df))
 ```
 
-Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). However, the standard deviations appear relatively high. Mediating factors will be explored next.
+Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). This sample fails to replicate findings that infants demonstrate significantly longer latencies when generating goal predictions. However, the standard deviations appear relatively high. Perhaps attention to the familiarization scene will parse differences in both proportional prediction and latencies to predict.
 
 <h3> Question #3 </h3>
-Can attention to the scene during the Familiarization trial predict whether or not an infant will generate a prediction?  
+Can attention to the scene during the Familiarization trial predict whether or not an infant will generate any prediction?  
 
 ```{r Attention Prediction}
 # Calculate % attention
-Attention <- PredLat %>%
-  mutate(Attention = Fam_Screen / FamTrialLength_ms)
+AttPrediction <- filtered %>%
+  select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
+  mutate(Attention = Fam_Screen / FamTrialLength_ms)%>%
+  mutate(Prediction = ifelse(Body_Prediction == "No Prediction", 0, 1))%>%
+  arrange(FamTrialLength_ms)
 
+# Convert to factor for analysis
+AttPrediction$Prediction <- as.factor(AttPrediction$Prediction)
+
+# Split model into Train and Test
+train <- AttPrediction[1:110,]
+test <- AttPrediction[111:130,]
+
+# Fit the model
+model <- glm(Prediction ~ Attention, family=binomial(link='logit'),data=train)
+kable(tidy_x(model))
+# Test variance
+kable(tidy(anova(model, test="Chisq")))
 ```
 
-    * Stat - Linear regression for fam attention to predict infants generation of prediction  
-    * Binomial - Yes/No  
+
+YES!
+
+
+
+
 
 <h3> Question #4 </h3>
-Can attention to Fam predict what type of prediction infants will generate when they do make a prediction?  
-    * Stat - Linear regression for fam attention to predict infants type of prediction  
-    * Binomial - Goal/Location  
+Can attention to the scene during the Familiarization trial predict what type of prediction infants will generate when they do make a prediction? 
+
+```{r Attention Prediction-Type}
+AttPredictionType <- filtered %>%
+  filter(Body_Prediction != "No Prediction")%>%
+  select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
+  mutate(Attention = Fam_Screen / FamTrialLength_ms)%>%
+  arrange(FamTrialLength_ms)
+
+# Convert to factor for analysis
+AttPredictionType$Body_Prediction <- as.factor(AttPredictionType$Body_Prediction)
+
+# Split model into Train and Test
+train <- AttPredictionType[1:79,]
+test <- AttPredictionType[80:95,]
+
+# Fit the model
+model <- glm(Body_Prediction ~ Attention,
+             family=binomial(link='logit'),data=train)
+kable(tidy_x(model))
+# Test variance
+kable(tidy(anova(model, test="Chisq")))
+```
+
+NO!
+
+
+<h3> Question #5 </h3>
+Can attention to the scene during the Familiarization trial predict the latency with which infant generate a prediction?  
 
 ```{r Attention Latency}
+AttLatency <- filtered %>%
+  filter(Body_Prediction != "No Prediction") %>%
+  select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
+  mutate(Attention = Fam_Screen / FamTrialLength_ms)%>%
+  arrange(FamTrialLength_ms)
 
+Latency_lm <- lm(Body_Latency ~ Attention, AttLatency)
+kable(tidy(Latency_lm))
 ```
+
+No!
 
 
