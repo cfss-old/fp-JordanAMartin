@@ -13,7 +13,7 @@
 
 <meta name="date" content="2016-12-07" />
 
-<title>TITLE</title>
+<title>Infant Social Attention During Goal-Directed Action</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -199,7 +199,7 @@ $(document).ready(function () {
 </style>
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("show" === "show");
+  window.initializeCodeFolding("hide" === "show");
 });
 </script>
 
@@ -311,7 +311,7 @@ div.tocify {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">Infant Social Cognition</a>
+      <a class="navbar-brand" href="index.html">Infant Social Attention</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -341,7 +341,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">TITLE</h1>
+<h1 class="title toc-ignore">Infant Social Attention During Goal-Directed Action</h1>
 <h4 class="author"><em>Jordan Martin</em></h4>
 <h4 class="date"><em>2016-12-07</em></h4>
 
@@ -491,7 +491,7 @@ AOIProp &lt;-<span class="st"> </span><span class="kw">rbind</span>(HandProp, Bo
 <span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&#39;identity&#39;</span>, <span class="dt">position =</span> <span class="st">&#39;dodge&#39;</span>)+
 <span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Predictions by AOI&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Prediction&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Proportion of Predictive Fixations&quot;</span>)</code></pre></div>
 <p><img src="Stats_files/figure-html/Prediction%20Proportions-1.png" width="672" /></p>
-<p>The graphs indicate that more predictions are revealed by an anlysis of fixations originating from the body than the hand.Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal. (M=<strong>, SD=</strong>, t(<strong>)=</strong>, p = (<strong>), whereas when using the Hand definition, infants responded at chance levels (M=0.48, SD=.50, t(49)=-0.28, p = </strong>).</p>
+<p>The graphs indicate that more predictions are revealed by an anlysis of fixations originating from the body than the hand.</p>
 <h4>
 Compare AOIs
 </h4>
@@ -513,11 +513,6 @@ tests &lt;-<span class="st"> </span><span class="kw">list</span>()
 tests[[<span class="dv">1</span>]] &lt;-<span class="st"> </span><span class="kw">t.test</span>(HP$Prediction, <span class="dt">mu=</span>.<span class="dv">5</span>)
 tests[[<span class="dv">2</span>]] &lt;-<span class="st"> </span><span class="kw">t.test</span>(BP$Prediction, <span class="dt">mu=</span>.<span class="dv">5</span>)
 
-<span class="co"># repeat for all tests</span>
-<span class="co"># there are probably faster ways than doing all of that by hand</span>
-
-<span class="co"># extract your values using `sapply`</span>
-<span class="co"># extract your values using `sapply`</span>
 df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(x) {
       <span class="kw">c</span>(x$statistic,
         x$parameter,
@@ -561,18 +556,65 @@ df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(
 </tr>
 </tbody>
 </table>
+<p>Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal (M=0.60, SD=.49, t(88)=2.04, p = .04*), whereas, when using the Hand definition, infants responded at chance levels (M=0.48, SD=.50, t(49)=-0.28, p = .78). Therefore, remaining analyses will be performed on data generated from an initial fixation to the Body AOI.</p>
 <h3>
 Question #2
 </h3>
-<p>Does latency vary between type of prediction?<br />
-* Using Body…<br />
-* Stat - Examine if infants “differ reliably in the time required to generate prior goal predictions (M=<strong>, SD=</strong>) compared to prior location predictions (M=<strong>, SD=</strong>; t(<strong>)=</strong>, p = __).”</p>
+<p>Does latency vary between type of prediction?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PredLat &lt;-<span class="st"> </span>filtered %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(Body_Prediction !=<span class="st"> &quot;No Prediction&quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">select</span>(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%&gt;%
+<span class="st">  </span><span class="kw">na.omit</span>()%&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Prediction =</span> <span class="kw">ifelse</span>(Body_Prediction ==<span class="st"> &quot;Distracter&quot;</span>, <span class="dv">0</span>, <span class="dv">1</span>))%&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(Prediction)
+
+tests &lt;-<span class="st"> </span><span class="kw">list</span>()
+tests[[<span class="dv">1</span>]] &lt;-<span class="st"> </span><span class="kw">t.test</span>(Body_Latency ~<span class="st"> </span>Prediction, <span class="dt">data =</span> PredLat)
+
+df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(x) {
+      <span class="kw">c</span>(x$statistic,
+        x$parameter,
+        x$estimate[<span class="dv">1</span>],
+        x$estimate[<span class="dv">2</span>],
+       <span class="dt">ci.lower =</span> x$conf.int[<span class="dv">1</span>],
+       <span class="dt">ci.upper =</span> x$conf.int[<span class="dv">2</span>],
+       <span class="dt">p.value =</span> x$p.value)
+    })
+<span class="kw">kable</span>(<span class="kw">t</span>(df))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="right">t</th>
+<th align="right">df</th>
+<th align="right">mean in group 0</th>
+<th align="right">mean in group 1</th>
+<th align="right">ci.lower</th>
+<th align="right">ci.upper</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1.049116</td>
+<td align="right">60.77662</td>
+<td align="right">2051.057</td>
+<td align="right">1628.13</td>
+<td align="right">-383.2357</td>
+<td align="right">1229.091</td>
+<td align="right">0.2982788</td>
+</tr>
+</tbody>
+</table>
+<p>Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). However, the standard deviations appear relatively high. Mediating factors will be explored next.</p>
 <h3>
 Question #3
 </h3>
-<p>Can attention to Fam predict whether or not an infant will generate a prediction?<br />
-* Stat - Linear regression for fam attention to predict infants generation of prediction<br />
-* Binomial - Yes/No</p>
+<p>Can attention to the scene during the Familiarization trial predict whether or not an infant will generate a prediction?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Calculate % attention</span>
+Attention &lt;-<span class="st"> </span>PredLat %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Attention =</span> Fam_Screen /<span class="st"> </span>FamTrialLength_ms)</code></pre></div>
+<pre><code>* Stat - Linear regression for fam attention to predict infants generation of prediction  
+* Binomial - Yes/No  </code></pre>
 <h3>
 Question #4
 </h3>

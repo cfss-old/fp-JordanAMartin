@@ -1,7 +1,7 @@
 name: "my-website"
 output_dir: "."
 navbar:
-  title: "Infant Social Cognition"
+  title: "Infant Social Attention"
   left:
     - text: "Analysis"
       href: Stats.html
@@ -11,3 +11,5 @@ output:
   html_document:
     theme: spacelab
     highlight: pygments
+    
+    

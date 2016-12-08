@@ -1,12 +1,12 @@
 ---
-title: "TITLE"
+title: "Infant Social Attention During Goal-Directed Action"
 author: "Jordan Martin"
 date: "`r Sys.Date()`"
 output:
   html_document:
     toc: true
     toc_float: true
-    code_folding: show
+    code_folding: hide
 ---
 
 ```{r Load Libraries, cache=FALSE, include=FALSE}
@@ -21,7 +21,7 @@ library(knitr)
 
 <h3> Eye-tracking Paradigm </h3>
 
-Eighteen-month-old infants were shown an eye-tracking paradigm... Familiarization videos showed an agent reaching for and grasping one of two toys. Four different agents and toy-pairs were shown. Test trials were shown twice, each after familiarization, for a total of 8 Test Trials.
+Eighteen-month-old infants were shown an eye-tracking paradigm in which a female agent reached for one of two toys on familiarization. On test, the agent raised her hand to midline, but did not complete a reaching action. Progression to the next scene was contigent on the infant making either a location- or goal-based prediction, as previously described. If the infant did not generate sufficient fixation, the scene progressed after a total of 8 seconds had elapsed from initial presentation. The task included four different agents and toy-pairs. Test trials were shown twice, each after a familiarization scene, for a total of 8 Test Trials. Two datasets of gaze-fixations were generated to investigate potential differences in the prescribed definition of a predicition from either the Hand AOI or Body AOI, as pictured below.
 
 ![Hand AOI](images/hand.png)
 
@@ -61,7 +61,7 @@ kable(ValidTrials,
 <h3> Summary </h3>
 <h4> Hand AOI </h4>
 
-```{r}
+```{r Hand AOI Summary}
 HandSummary <- filtered %>%
   group_by(Hand_Prediction)%>%
   summarise(n = n())
@@ -73,7 +73,7 @@ kable(HandSummary,
 
 <h4> Body AOI </h4>
 
-```{r}
+```{r Body AOI Summary}
 BodySummary <- filtered %>%
   group_by(Body_Prediction)%>%
   summarise(n = n())
@@ -106,11 +106,11 @@ ggplot(AOIProp,
   labs(title = "Predictions by AOI", x = "Prediction", y = "Proportion of Predictive Fixations")
 ```
 
-The graphs indicate that more predictions are revealed by an anlysis of fixations originating from the body than the hand.Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal. &#40;M=__, SD=__, t&#40;__&#41;=__, p = &#40;__&#41;, whereas when using the Hand definition, infants responded at chance levels &#40;M=0.48, SD=.50, t&#40;49&#41;=-0.28, p = __&#41;.
+The graphs indicate that more predictions are revealed by an anlysis of fixations originating from the body than the hand. 
 
 <h4> Compare AOIs </h4>
 
-```{r Hand AOI, echo=TRUE, message=FALSE, warning=FALSE}
+```{r Compare AOI, echo=TRUE, message=FALSE, warning=FALSE}
 # Recode Predictions
 HP <- filtered %>%
   filter(Hand_Prediction != "No Prediction")%>%
@@ -129,11 +129,6 @@ tests <- list()
 tests[[1]] <- t.test(HP$Prediction, mu=.5)
 tests[[2]] <- t.test(BP$Prediction, mu=.5)
 
-# repeat for all tests
-# there are probably faster ways than doing all of that by hand
-
-# extract your values using `sapply`
-# extract your values using `sapply`
 df <- sapply(tests, function(x) {
       c(x$statistic,
         x$parameter,
@@ -146,14 +141,46 @@ colnames(df)<- c("Hand", "Body")
 kable(t(df))
 ```
 
+Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal &#40;M=0.60, SD=.49, t&#40;88&#41;=2.04, p = .04*&#41;, whereas, when using the Hand definition, infants responded at chance levels &#40;M=0.48, SD=.50, t&#40;49&#41;=-0.28, p = .78&#41;. Therefore, remaining analyses will be performed on data generated from an initial fixation to the Body AOI.
 
 <h3> Question #2 </h3>
-Does latency vary between type of prediction?  
-    * Using Body…  
-    * Stat - Examine if infants “differ reliably in the time required to generate prior goal predictions (M=__, SD=__) compared to prior location predictions (M=__, SD=__; t(__)=__, p = __).”   
+Does latency vary between type of prediction?
+
+```{r Latency}
+PredLat <- filtered %>%
+  filter(Body_Prediction != "No Prediction")%>%
+  select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
+  na.omit()%>%
+  mutate(Prediction = ifelse(Body_Prediction == "Distracter", 0, 1))%>%
+  group_by(Prediction)
+
+tests <- list()
+tests[[1]] <- t.test(Body_Latency ~ Prediction, data = PredLat)
+
+df <- sapply(tests, function(x) {
+      c(x$statistic,
+        x$parameter,
+        x$estimate[1],
+        x$estimate[2],
+       ci.lower = x$conf.int[1],
+       ci.upper = x$conf.int[2],
+       p.value = x$p.value)
+    })
+kable(t(df))
+```
+
+Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). However, the standard deviations appear relatively high. Mediating factors will be explored next.
 
 <h3> Question #3 </h3>
-Can attention to Fam predict whether or not an infant will generate a prediction?  
+Can attention to the scene during the Familiarization trial predict whether or not an infant will generate a prediction?  
+
+```{r Attention Prediction}
+# Calculate % attention
+Attention <- PredLat %>%
+  mutate(Attention = Fam_Screen / FamTrialLength_ms)
+
+```
+
     * Stat - Linear regression for fam attention to predict infants generation of prediction  
     * Binomial - Yes/No  
 
@@ -162,7 +189,8 @@ Can attention to Fam predict what type of prediction infants will generate when 
     * Stat - Linear regression for fam attention to predict infants type of prediction  
     * Binomial - Goal/Location  
 
-```{r Fam Attention, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-# Calculate Sample Rate: Divide AOI Attention by Trial Length, drop trial length variables
-transform(MOAP, Fam_Screen_Att = Fam_Screen / FamTrialLength_ms)
+```{r Attention Latency}
+
 ```
+
+
