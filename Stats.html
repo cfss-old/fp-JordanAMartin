@@ -534,8 +534,10 @@ df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(
        <span class="st">`</span><span class="dt">$p$ value</span><span class="st">`</span> =<span class="st"> </span>x$p.value)
     })
 <span class="kw">colnames</span>(df)&lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Hand&quot;</span>, <span class="st">&quot;Body&quot;</span>)
-<span class="kw">kable</span>(<span class="kw">t</span>(df))</code></pre></div>
+<span class="kw">kable</span>(<span class="kw">t</span>(df),
+      <span class="dt">caption =</span> <span class="st">&quot;Comparison of AOI Means&quot;</span>)</code></pre></div>
 <table>
+<caption>Comparison of AOI Means</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -592,8 +594,10 @@ df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(
        <span class="dt">ci.upper =</span> x$conf.int[<span class="dv">2</span>],
        <span class="st">`</span><span class="dt">$p$ value</span><span class="st">`</span> =<span class="st"> </span>x$p.value)
     })
-<span class="kw">kable</span>(<span class="kw">t</span>(df))</code></pre></div>
+<span class="kw">kable</span>(<span class="kw">t</span>(df),
+      <span class="dt">caption =</span> <span class="st">&quot;Comparison of latency between predictions&quot;</span>)</code></pre></div>
 <table>
+<caption>Comparison of latency between predictions</caption>
 <thead>
 <tr class="header">
 <th align="right">t</th>
@@ -638,8 +642,10 @@ test &lt;-<span class="st"> </span>AttPrediction[<span class="dv">111</span>:<sp
 
 <span class="co"># Fit the model</span>
 model &lt;-<span class="st"> </span><span class="kw">glm</span>(Prediction ~<span class="st"> </span>Attention, <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>),<span class="dt">data=</span>train)
-<span class="kw">kable</span>(<span class="kw">tidy_x</span>(model))</code></pre></div>
+<span class="kw">kable</span>(<span class="kw">tidy_x</span>(model),
+      <span class="dt">caption =</span> <span class="st">&quot;Model Fit&quot;</span>)</code></pre></div>
 <table>
+<caption>Model Fit</caption>
 <thead>
 <tr class="header">
 <th align="left">term</th>
@@ -667,11 +673,10 @@ model &lt;-<span class="st"> </span><span class="kw">glm</span>(Prediction ~<spa
 </tbody>
 </table>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Test variance</span>
-<span class="kw">kable</span>(<span class="kw">tidy</span>(<span class="kw">anova</span>(model, <span class="dt">test=</span><span class="st">&quot;Chisq&quot;</span>)))</code></pre></div>
-<pre><code>## Warning in tidy.anova(anova(model, test = &quot;Chisq&quot;)): The following column
-## names in ANOVA output were not recognized or transformed: Deviance,
-## Resid..Df, Resid..Dev, Pr..Chi.</code></pre>
+<span class="kw">kable</span>(<span class="kw">tidy</span>(<span class="kw">anova</span>(model, <span class="dt">test=</span><span class="st">&quot;Chisq&quot;</span>)),
+      <span class="dt">caption =</span> <span class="st">&quot;Model Variance&quot;</span>)</code></pre></div>
 <table>
+<caption>Model Variance</caption>
 <thead>
 <tr class="header">
 <th align="left">term</th>
@@ -722,8 +727,10 @@ test &lt;-<span class="st"> </span>AttPredictionType[<span class="dv">80</span>:
 <span class="co"># Fit the model</span>
 model &lt;-<span class="st"> </span><span class="kw">glm</span>(Body_Prediction ~<span class="st"> </span>Attention,
              <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>),<span class="dt">data=</span>train)
-<span class="kw">kable</span>(<span class="kw">tidy_x</span>(model))</code></pre></div>
+<span class="kw">kable</span>(<span class="kw">tidy_x</span>(model),
+      <span class="dt">caption =</span> <span class="st">&quot;Model Fit&quot;</span>)</code></pre></div>
 <table>
+<caption>Model Fit</caption>
 <thead>
 <tr class="header">
 <th align="left">term</th>
@@ -751,11 +758,10 @@ model &lt;-<span class="st"> </span><span class="kw">glm</span>(Body_Prediction 
 </tbody>
 </table>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Test variance</span>
-<span class="kw">kable</span>(<span class="kw">tidy</span>(<span class="kw">anova</span>(model, <span class="dt">test=</span><span class="st">&quot;Chisq&quot;</span>)))</code></pre></div>
-<pre><code>## Warning in tidy.anova(anova(model, test = &quot;Chisq&quot;)): The following column
-## names in ANOVA output were not recognized or transformed: Deviance,
-## Resid..Df, Resid..Dev, Pr..Chi.</code></pre>
+<span class="kw">kable</span>(<span class="kw">tidy</span>(<span class="kw">anova</span>(model, <span class="dt">test=</span><span class="st">&quot;Chisq&quot;</span>)),
+      <span class="dt">caption =</span> <span class="st">&quot;Model Variance&quot;</span>)</code></pre></div>
 <table>
+<caption>Model Variance</caption>
 <thead>
 <tr class="header">
 <th align="left">term</th>
@@ -796,9 +802,16 @@ Question #5
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Attention =</span> Fam_Screen /<span class="st"> </span>FamTrialLength_ms)%&gt;%
 <span class="st">  </span><span class="kw">arrange</span>(FamTrialLength_ms)
 
-Latency_lm &lt;-<span class="st"> </span><span class="kw">lm</span>(Body_Latency ~<span class="st"> </span>Attention, AttLatency)
-<span class="kw">kable</span>(<span class="kw">tidy</span>(Latency_lm))</code></pre></div>
+<span class="kw">ggplot</span>(AttLatency, <span class="kw">aes</span>(<span class="dt">x =</span> Attention)) +
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">y =</span> Body_Latency))+
+<span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Body_Prediction)+
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Attention and Latency to Predict&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Proportional Attention to the Familiarization Scene&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Latency (ms)&quot;</span>)</code></pre></div>
+<p><img src="Stats_files/figure-html/Attention%20Latency-1.png" width="672" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Latency_lm &lt;-<span class="st"> </span><span class="kw">lm</span>(Body_Latency ~<span class="st"> </span>Attention, AttLatency)
+<span class="kw">kable</span>(<span class="kw">tidy</span>(Latency_lm),
+      <span class="dt">caption =</span> <span class="st">&quot;Model&quot;</span>)</code></pre></div>
 <table>
+<caption>Model</caption>
 <thead>
 <tr class="header">
 <th align="left">term</th>

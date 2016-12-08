@@ -153,7 +153,8 @@ df <- sapply(tests, function(x) {
        `$p$ value` = x$p.value)
     })
 colnames(df)<- c("Hand", "Body")
-kable(t(df))
+kable(t(df),
+      caption = "Comparison of AOI Means")
 ```
 
 Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal &#40;M=0.60, SD=.49, t&#40;88&#41;=2.04, p = .04*&#41;, whereas, when using the Hand definition, infants responded at chance levels &#40;M=0.48, SD=.50, t&#40;49&#41;=-0.28, p = .78&#41;. Therefore, remaining analyses will be performed on data generated from an initial fixation to the Body AOI.
@@ -161,7 +162,7 @@ Planned comparisons against chance (.5) revealed that when using the Body defini
 <h3> Question #2 </h3>
 Does latency vary between type of prediction?
 
-```{r Latency}
+```{r Latency, message=FALSE, warning=FALSE}
 PredLat <- filtered %>%
   filter(Body_Prediction != "No Prediction")%>%
   select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
@@ -181,7 +182,8 @@ df <- sapply(tests, function(x) {
        ci.upper = x$conf.int[2],
        `$p$ value` = x$p.value)
     })
-kable(t(df))
+kable(t(df),
+      caption = "Comparison of latency between predictions")
 ```
 
 Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). This sample fails to replicate findings that infants demonstrate significantly longer latencies when generating goal predictions. However, the standard deviations appear relatively high. Perhaps attention to the familiarization scene will parse differences in both proportional prediction and latencies to predict.
@@ -189,7 +191,7 @@ Planned comparisons against chance (.5) revealed that infants did not differ rel
 <h3> Question #3 </h3>
 Can attention to the scene during the Familiarization trial predict whether or not an infant will generate any prediction?  
 
-```{r Attention Prediction}
+```{r Attention Prediction, message=FALSE, warning=FALSE}
 # Calculate % attention
 AttPrediction <- filtered %>%
   select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
@@ -206,9 +208,11 @@ test <- AttPrediction[111:130,]
 
 # Fit the model
 model <- glm(Prediction ~ Attention, family=binomial(link='logit'),data=train)
-kable(tidy_x(model))
+kable(tidy_x(model),
+      caption = "Model Fit")
 # Test variance
-kable(tidy(anova(model, test="Chisq")))
+kable(tidy(anova(model, test="Chisq")),
+      caption = "Model Variance")
 ```
 
 
@@ -221,7 +225,7 @@ YES!
 <h3> Question #4 </h3>
 Can attention to the scene during the Familiarization trial predict what type of prediction infants will generate when they do make a prediction? 
 
-```{r Attention Prediction-Type}
+```{r Attention Prediction-Type, message=FALSE, warning=FALSE}
 AttPredictionType <- filtered %>%
   filter(Body_Prediction != "No Prediction")%>%
   select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
@@ -238,9 +242,11 @@ test <- AttPredictionType[80:95,]
 # Fit the model
 model <- glm(Body_Prediction ~ Attention,
              family=binomial(link='logit'),data=train)
-kable(tidy_x(model))
+kable(tidy_x(model),
+      caption = "Model Fit")
 # Test variance
-kable(tidy(anova(model, test="Chisq")))
+kable(tidy(anova(model, test="Chisq")),
+      caption = "Model Variance")
 ```
 
 NO!
@@ -249,15 +255,21 @@ NO!
 <h3> Question #5 </h3>
 Can attention to the scene during the Familiarization trial predict the latency with which infant generate a prediction?  
 
-```{r Attention Latency}
+```{r Attention Latency, message=FALSE, warning=FALSE}
 AttLatency <- filtered %>%
   filter(Body_Prediction != "No Prediction") %>%
   select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
   mutate(Attention = Fam_Screen / FamTrialLength_ms)%>%
   arrange(FamTrialLength_ms)
 
+ggplot(AttLatency, aes(x = Attention)) +
+  geom_point(aes(y = Body_Latency))+
+  facet_grid(. ~ Body_Prediction)+
+  labs(title = "Attention and Latency to Predict", x = "Proportional Attention to the Familiarization Scene", y = "Latency (ms)")
+
 Latency_lm <- lm(Body_Latency ~ Attention, AttLatency)
-kable(tidy(Latency_lm))
+kable(tidy(Latency_lm),
+      caption = "Model")
 ```
 
 No!
