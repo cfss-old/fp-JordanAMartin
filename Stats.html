@@ -366,7 +366,7 @@ Method
 <h3>
 Eye-tracking Paradigm
 </h3>
-<p>Eighteen-month-old infants were shown an eye-tracking paradigm in which a female agent reached for one of two toys on familiarization. On test, the agent raised her hand to midline, but did not complete a reaching action. Progression to the next scene was contigent on the infant making either a location- or goal-based prediction, as previously described. If the infant did not generate sufficient fixation, the scene progressed after a total of 8 seconds had elapsed from initial presentation. The task included four different agents and toy-pairs. Test trials were shown twice, each after a familiarization scene, for a total of 8 Test Trials. Two datasets of gaze-fixations were generated to investigate potential differences in the prescribed definition of a predicition from either the Hand AOI or Body AOI, as pictured below.</p>
+<p>Eighteen-month-old infants were shown an eye-tracking paradigm in which a female agent reached for one of two toys on familiarization. On test, the agent raised her hand to midline, but did not complete a reaching action. Progression to the next scene was contingent on the infant making either a location- or goal-based prediction, as previously described. If the infant did not generate sufficient fixation, the scene progressed after a total of 8 seconds had elapsed from initial presentation. The task included four different agents and toy-pairs. Test trials were shown twice, each after a familiarization scene, for a total of 8 Test Trials. Two datasets of gaze-fixations were generated to investigate potential differences in the prescribed definition of a prediction from either the Hand AOI or Body AOI, as pictured below.</p>
 <div class="figure">
 <img src="images/hand.png" alt="Hand AOI" />
 <p class="caption">Hand AOI</p>
@@ -582,7 +582,11 @@ Question #2
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Prediction =</span> <span class="kw">ifelse</span>(Body_Prediction ==<span class="st"> &quot;Distracter&quot;</span>, <span class="dv">0</span>, <span class="dv">1</span>))%&gt;%
 <span class="st">  </span><span class="kw">group_by</span>(Prediction)
 
-tests &lt;-<span class="st"> </span><span class="kw">list</span>()
+<span class="kw">ggplot</span>(PredLat, <span class="kw">aes</span>(Body_Prediction, Body_Latency))+
+<span class="st">  </span><span class="kw">geom_boxplot</span>(<span class="dt">group =</span> <span class="st">&quot;Body_Prediction&quot;</span>)+
+<span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Latency Between Object Predictions&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Prediction&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Latency to Predict (ms)&quot;</span>)</code></pre></div>
+<p><img src="Stats_files/figure-html/Latency-1.png" width="672" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tests &lt;-<span class="st"> </span><span class="kw">list</span>()
 tests[[<span class="dv">1</span>]] &lt;-<span class="st"> </span><span class="kw">t.test</span>(Body_Latency ~<span class="st"> </span>Prediction, <span class="dt">data =</span> PredLat)
 
 df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(x) {
@@ -621,7 +625,7 @@ df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(
 </tr>
 </tbody>
 </table>
-<p>Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). This sample fails to replicate findings that infants demonstrate significantly longer latencies when generating goal predictions. However, the standard deviations appear relatively high. Perhaps attention to the familiarization scene will parse differences in both proportional prediction and latencies to predict.</p>
+<p>Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). This sample fails to replicate findings that infants demonstrate significantly longer latencies when generating goal predictions. Perhaps attention to the familiarization scene will mediate differences in both proportional prediction and latencies to predict.</p>
 <h3>
 Question #3
 </h3>
@@ -641,8 +645,25 @@ train &lt;-<span class="st"> </span>AttPrediction[<span class="dv">1</span>:<spa
 test &lt;-<span class="st"> </span>AttPrediction[<span class="dv">111</span>:<span class="dv">130</span>,]
 
 <span class="co"># Fit the model</span>
-model &lt;-<span class="st"> </span><span class="kw">glm</span>(Prediction ~<span class="st"> </span>Attention, <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>),<span class="dt">data=</span>train)
-<span class="kw">kable</span>(<span class="kw">tidy_x</span>(model),
+model &lt;-<span class="st"> </span><span class="kw">glm</span>(Prediction ~<span class="st"> </span>Attention, <span class="dt">family=</span>binomial, <span class="dt">data=</span>train)
+
+<span class="co"># Function to transform logit</span>
+logit2prob &lt;-<span class="st"> </span>function(x){
+  <span class="kw">exp</span>(x) /<span class="st"> </span>(<span class="dv">1</span> +<span class="st"> </span><span class="kw">exp</span>(x))
+}
+
+<span class="co"># Add predictions</span>
+AP_attention &lt;-<span class="st"> </span>AttPrediction %&gt;%
+<span class="st">  </span><span class="kw">add_predictions</span>(model) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pred =</span> <span class="kw">logit2prob</span>(pred))
+
+<span class="co"># Visualize</span>
+<span class="kw">ggplot</span>(AP_attention, <span class="kw">aes</span>(Attention)) +
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> pred)) +
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Relationship Between Proportional Attention and Generating Visual Predictions&quot;</span>,
+       <span class="dt">y =</span> <span class="st">&quot;Predicted Probability of Generating a Visual Prediction&quot;</span>)</code></pre></div>
+<p><img src="Stats_files/figure-html/Attention%20Prediction-1.png" width="672" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">tidy_x</span>(model),
       <span class="dt">caption =</span> <span class="st">&quot;Model Fit&quot;</span>)</code></pre></div>
 <table>
 <caption>Model Fit</caption>
@@ -706,7 +727,7 @@ model &lt;-<span class="st"> </span><span class="kw">glm</span>(Prediction ~<spa
 </tr>
 </tbody>
 </table>
-<p>YES!</p>
+<p>According to the model, proportional attention to familiarization can be used to estimate the likelihood of an infant generating a visual prediction (p = .02). This does not answer whether or not their attention in familiarization has a any relevance to detecting the social and intentional aspect of the test scene (that this agent will continue to act on the previous “goal” object).</p>
 <h3>
 Question #4
 </h3>
@@ -727,6 +748,7 @@ test &lt;-<span class="st"> </span>AttPredictionType[<span class="dv">80</span>:
 <span class="co"># Fit the model</span>
 model &lt;-<span class="st"> </span><span class="kw">glm</span>(Body_Prediction ~<span class="st"> </span>Attention,
              <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>),<span class="dt">data=</span>train)
+
 <span class="kw">kable</span>(<span class="kw">tidy_x</span>(model),
       <span class="dt">caption =</span> <span class="st">&quot;Model Fit&quot;</span>)</code></pre></div>
 <table>
@@ -791,7 +813,7 @@ model &lt;-<span class="st"> </span><span class="kw">glm</span>(Body_Prediction 
 </tr>
 </tbody>
 </table>
-<p>NO!</p>
+<p>According to the model, proportional attention to familiarization cannot be used to estimate the likelihood of an infant generating a specific visual prediction to the goal or distracter objects (p = .46). The question still remains as to whether attention to familiarization can reveal a relationship between latency and prediction.</p>
 <h3>
 Question #5
 </h3>
@@ -802,13 +824,19 @@ Question #5
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Attention =</span> Fam_Screen /<span class="st"> </span>FamTrialLength_ms)%&gt;%
 <span class="st">  </span><span class="kw">arrange</span>(FamTrialLength_ms)
 
+<span class="co"># Convert to factor for analysis</span>
+AttLatency$Body_Prediction &lt;-<span class="st"> </span><span class="kw">as.factor</span>(AttLatency$Body_Prediction)
+
 <span class="kw">ggplot</span>(AttLatency, <span class="kw">aes</span>(<span class="dt">x =</span> Attention)) +
 <span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">y =</span> Body_Latency))+
 <span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>Body_Prediction)+
-<span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Attention and Latency to Predict&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Proportional Attention to the Familiarization Scene&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Latency (ms)&quot;</span>)</code></pre></div>
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Attention and Latency to Predict&quot;</span>, 
+       <span class="dt">x =</span> <span class="st">&quot;Proportional Attention to the Familiarization Scene&quot;</span>,
+       <span class="dt">y =</span> <span class="st">&quot;Latency (ms)&quot;</span>)</code></pre></div>
 <p><img src="Stats_files/figure-html/Attention%20Latency-1.png" width="672" /></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Latency_lm &lt;-<span class="st"> </span><span class="kw">lm</span>(Body_Latency ~<span class="st"> </span>Attention, AttLatency)
-<span class="kw">kable</span>(<span class="kw">tidy</span>(Latency_lm),
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Latency_lm &lt;-<span class="st"> </span><span class="kw">lm</span>(Body_Latency ~<span class="st"> </span>Attention *<span class="st"> </span>Body_Prediction, AttLatency)
+
+<span class="kw">kable</span>(<span class="kw">tidy_x</span>(Latency_lm),
       <span class="dt">caption =</span> <span class="st">&quot;Model&quot;</span>)</code></pre></div>
 <table>
 <caption>Model</caption>
@@ -816,29 +844,43 @@ Question #5
 <tr class="header">
 <th align="left">term</th>
 <th align="right">estimate</th>
-<th align="right">std.error</th>
-<th align="right">statistic</th>
-<th align="right">p.value</th>
+<th align="right">std. error</th>
+<th align="right"><span class="math inline">\(z\)</span> value</th>
+<th align="left"><span class="math inline">\(p\)</span> value</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">1938.33</td>
-<td align="right">485.4013</td>
-<td align="right">3.9932527</td>
-<td align="right">0.0001358</td>
+<td align="right">2578.3406</td>
+<td align="right">759.4460</td>
+<td align="right">3.3950283</td>
+<td align="left">0.001</td>
 </tr>
 <tr class="even">
 <td align="left">Attention</td>
-<td align="right">-224.42</td>
-<td align="right">697.6524</td>
-<td align="right">-0.3216788</td>
-<td align="right">0.7484676</td>
+<td align="right">-848.6623</td>
+<td align="right">1122.1299</td>
+<td align="right">-0.7562959</td>
+<td align="left">0.452</td>
+</tr>
+<tr class="odd">
+<td align="left">Body_PredictionGoal</td>
+<td align="right">-1111.0117</td>
+<td align="right">989.1643</td>
+<td align="right">-1.1231821</td>
+<td align="left">0.265</td>
+</tr>
+<tr class="even">
+<td align="left">Attention:Body_PredictionGoal</td>
+<td align="right">1094.5494</td>
+<td align="right">1435.6186</td>
+<td align="right">0.7624235</td>
+<td align="left">0.448</td>
 </tr>
 </tbody>
 </table>
-<p>No!</p>
+<p>According to the model, proportional attention to familiarization cannot be used to estimate the latency of visual prediction to the goal or distracter objects (p = .44). Further analysis should seek to explore which elements of the familiarization scene might be influential in determining whether or not an infant will generate any visual prediction. Though it was beyond the scope of the current study, with only 130 valid test trials, further analysis into the variables that did not remain constant should be conducted. It may be the case that particular agents or particular toys had a greater influence on infants’ attentional cueing to the social information of the scene.</p>
 
 
 

@@ -36,7 +36,7 @@ tidy_x <- function(x, predictors = NA) {
 
 <h3> Eye-tracking Paradigm </h3>
 
-Eighteen-month-old infants were shown an eye-tracking paradigm in which a female agent reached for one of two toys on familiarization. On test, the agent raised her hand to midline, but did not complete a reaching action. Progression to the next scene was contigent on the infant making either a location- or goal-based prediction, as previously described. If the infant did not generate sufficient fixation, the scene progressed after a total of 8 seconds had elapsed from initial presentation. The task included four different agents and toy-pairs. Test trials were shown twice, each after a familiarization scene, for a total of 8 Test Trials. Two datasets of gaze-fixations were generated to investigate potential differences in the prescribed definition of a predicition from either the Hand AOI or Body AOI, as pictured below.
+Eighteen-month-old infants were shown an eye-tracking paradigm in which a female agent reached for one of two toys on familiarization. On test, the agent raised her hand to midline, but did not complete a reaching action. Progression to the next scene was contingent on the infant making either a location- or goal-based prediction, as previously described. If the infant did not generate sufficient fixation, the scene progressed after a total of 8 seconds had elapsed from initial presentation. The task included four different agents and toy-pairs. Test trials were shown twice, each after a familiarization scene, for a total of 8 Test Trials. Two datasets of gaze-fixations were generated to investigate potential differences in the prescribed definition of a prediction from either the Hand AOI or Body AOI, as pictured below.
 
 ![Hand AOI](images/hand.png)
 
@@ -170,6 +170,10 @@ PredLat <- filtered %>%
   mutate(Prediction = ifelse(Body_Prediction == "Distracter", 0, 1))%>%
   group_by(Prediction)
 
+ggplot(PredLat, aes(Body_Prediction, Body_Latency))+
+  geom_boxplot(group = "Body_Prediction")+
+    labs(title = "Latency Between Object Predictions", x = "Prediction", y = "Latency to Predict (ms)")
+
 tests <- list()
 tests[[1]] <- t.test(Body_Latency ~ Prediction, data = PredLat)
 
@@ -186,7 +190,7 @@ kable(t(df),
       caption = "Comparison of latency between predictions")
 ```
 
-Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). This sample fails to replicate findings that infants demonstrate significantly longer latencies when generating goal predictions. However, the standard deviations appear relatively high. Perhaps attention to the familiarization scene will parse differences in both proportional prediction and latencies to predict.
+Planned comparisons against chance (.5) revealed that infants did not differ reliably in the time required to generate prior goal predictions (M=1628, SD=1591) compared to prior location predictions (M=2051, SD=2011; t(60)=1.04, p =.29). This sample fails to replicate findings that infants demonstrate significantly longer latencies when generating goal predictions. Perhaps attention to the familiarization scene will mediate differences in both proportional prediction and latencies to predict.
 
 <h3> Question #3 </h3>
 Can attention to the scene during the Familiarization trial predict whether or not an infant will generate any prediction?  
@@ -207,16 +211,34 @@ train <- AttPrediction[1:110,]
 test <- AttPrediction[111:130,]
 
 # Fit the model
-model <- glm(Prediction ~ Attention, family=binomial(link='logit'),data=train)
+model <- glm(Prediction ~ Attention, family=binomial, data=train)
+
+# Function to transform logit
+logit2prob <- function(x){
+  exp(x) / (1 + exp(x))
+}
+
+# Add predictions
+AP_attention <- AttPrediction %>%
+  add_predictions(model) %>%
+  mutate(pred = logit2prob(pred))
+
+# Visualize
+ggplot(AP_attention, aes(Attention)) +
+  geom_line(aes(y = pred)) +
+  labs(title = "Relationship Between Proportional Attention and Generating Visual Predictions",
+       y = "Predicted Probability of Generating a Visual Prediction")
+
 kable(tidy_x(model),
       caption = "Model Fit")
+
 # Test variance
 kable(tidy(anova(model, test="Chisq")),
       caption = "Model Variance")
 ```
 
 
-YES!
+According to the model, proportional attention to familiarization can be used to estimate the likelihood of an infant generating a visual prediction (p = .02). This does not answer whether or not their attention in familiarization has a any relevance to detecting the social and intentional aspect of the test scene (that this agent will continue to act on the previous "goal" object).
 
 
 
@@ -242,6 +264,7 @@ test <- AttPredictionType[80:95,]
 # Fit the model
 model <- glm(Body_Prediction ~ Attention,
              family=binomial(link='logit'),data=train)
+
 kable(tidy_x(model),
       caption = "Model Fit")
 # Test variance
@@ -249,7 +272,7 @@ kable(tidy(anova(model, test="Chisq")),
       caption = "Model Variance")
 ```
 
-NO!
+According to the model, proportional attention to familiarization cannot be used to estimate the likelihood of an infant generating a specific visual prediction to the goal or distracter objects (p = .46). The question still remains as to whether attention to familiarization can reveal a relationship between latency and prediction.
 
 
 <h3> Question #5 </h3>
@@ -262,16 +285,22 @@ AttLatency <- filtered %>%
   mutate(Attention = Fam_Screen / FamTrialLength_ms)%>%
   arrange(FamTrialLength_ms)
 
+# Convert to factor for analysis
+AttLatency$Body_Prediction <- as.factor(AttLatency$Body_Prediction)
+
 ggplot(AttLatency, aes(x = Attention)) +
   geom_point(aes(y = Body_Latency))+
   facet_grid(. ~ Body_Prediction)+
-  labs(title = "Attention and Latency to Predict", x = "Proportional Attention to the Familiarization Scene", y = "Latency (ms)")
+  labs(title = "Attention and Latency to Predict", 
+       x = "Proportional Attention to the Familiarization Scene",
+       y = "Latency (ms)")
 
-Latency_lm <- lm(Body_Latency ~ Attention, AttLatency)
-kable(tidy(Latency_lm),
+Latency_lm <- lm(Body_Latency ~ Attention * Body_Prediction, AttLatency)
+
+kable(tidy_x(Latency_lm),
       caption = "Model")
 ```
 
-No!
+According to the model, proportional attention to familiarization cannot be used to estimate the latency of visual prediction to the goal or distracter objects (p = .44). Further analysis should seek to explore which elements of the familiarization scene might be influential in determining whether or not an infant will generate any visual prediction. Though it was beyond the scope of the current study, with only 130 valid test trials, further analysis into the variables that did not remain constant should be conducted. It may be the case that particular agents or particular toys had a greater influence on infants' attentional cueing to the social information of the scene.
 
 
