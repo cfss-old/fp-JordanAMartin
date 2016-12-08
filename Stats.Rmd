@@ -6,7 +6,7 @@ output:
   html_document:
     toc: true
     toc_float: true
-    code_folding: hide
+    code_folding: show
 ---
 
 ```{r Load Libraries, cache=FALSE, include=FALSE}
@@ -14,6 +14,7 @@ library(tidyverse)
 library(gridExtra)
 library(stats)
 library(pander)
+library(knitr)
 ```
 
 <h2> Method </h2>
@@ -22,7 +23,14 @@ library(pander)
 
 Eighteen-month-old infants were shown an eye-tracking paradigm... Familiarization videos showed an agent reaching for and grasping one of two toys. Four different agents and toy-pairs were shown. Test trials were shown twice, each after familiarization, for a total of 8 Test Trials.
 
+![Hand AOI](images/hand.png)
+
+
+![Body AOI](images/body.png)
+
+
 <h3> [Data Reduction](Tidying.html) </h3>
+
 
 Load in data.
 ```{r Load Data, echo=TRUE, message=FALSE, warning=FALSE}
@@ -35,19 +43,44 @@ MOAP <- drop_na(MOAP, Hand_Prediction, Body_Prediction)
 
 <h3> Exclusions </h3>
 
-A total of 12 infants were excluded from analysis do to low calibration (n = 4), fussiness (n = 2), and sample rate < 50% (n = 6).
+A total of 12 infants were excluded from analysis due to low calibration (n = 4), fussiness (n = 2), and sample rate < 50% (n = 6).
 
 ```{r Exclusions, echo=TRUE, message=FALSE, warning=FALSE}
-MOAP <- MOAP %>%
+filtered <- MOAP %>%
   filter(ID != "M08" & ID != "M11" & ID != "M14" & ID != "M17" & ID != "M18" & ID != "M25" & ID != "M26" & ID != "M27" & ID != "M30" & ID != "M31"  & ID != "M32"  & ID != "M33")
+
+ValidTrials <- filtered %>%
+  summarise(n = n())
+
+kable(ValidTrials,
+      col.names = c("Total"),
+      caption = "Number of Valid Trials")
 ```
 
-<h2> Results </h2>
-
-<h3> Demographics </h3>
+<h2> Analysis </h2>
+<h3> Summary </h3>
+<h4> Hand AOI </h4>
 
 ```{r}
+HandSummary <- filtered %>%
+  group_by(Hand_Prediction)%>%
+  summarise(n = n())
 
+kable(HandSummary,
+      col.names = c("Prediction Type", "Num Predictions"),
+      caption = "Number of Predictions from Hand AOI")
+```
+
+<h4> Body AOI </h4>
+
+```{r}
+BodySummary <- filtered %>%
+  group_by(Body_Prediction)%>%
+  summarise(n = n())
+
+kable(BodySummary,
+      col.names = c("Prediction Type", "Num Predictions"),
+      caption = "Number of Predictions from Body AOI")
 ```
 
 <h3> Question #1 </h3>
@@ -56,48 +89,63 @@ Does varying initial fixation AOI from hand to body change prediction response?
 
 ```{r Prediction Proportions, echo=TRUE, message=FALSE, warning=FALSE}
 # Graph Proportion of Predictions for each initial AOI
-Hand_Pred <- ggplot(MOAP) +
-  geom_bar(mapping = aes(x = Hand_Prediction, y = ..prop.., group = 1)) +
-  labs(title = "From Hand", x = "Prediction", y = "Proportion of Predictive Fixations")
-Body_Pred <- ggplot(MOAP) +
-  geom_bar(mapping = aes(x = Body_Prediction, y = ..prop.., group = 1)) +
-  labs(title = "From Body", x = "Prediction", y = "Proportion of Predictive Fixations")
-grid.arrange(Hand_Pred, Body_Pred, nrow=1)
+HandProp <- HandSummary %>%
+  mutate(AOI = "Hand")%>%
+  rename(Prediction = Hand_Prediction)
+BodyProp <- BodySummary %>%
+  mutate(AOI = "Body")%>%
+  rename(Prediction = Body_Prediction)
+AOIProp <- rbind(HandProp, BodyProp)%>%
+  group_by(AOI)%>%
+    mutate(prop = prop.table(n))
+
+ggplot(AOIProp,
+       aes(x=Prediction, y=prop, fill=AOI)) +
+  facet_grid(. ~ AOI) +
+  geom_bar(stat = 'identity', position = 'dodge')+
+  labs(title = "Predictions by AOI", x = "Prediction", y = "Proportion of Predictive Fixations")
 ```
 
 The graphs indicate that more predictions are revealed by an anlysis of fixations originating from the body than the hand.Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal. &#40;M=__, SD=__, t&#40;__&#41;=__, p = &#40;__&#41;, whereas when using the Hand definition, infants responded at chance levels &#40;M=0.48, SD=.50, t&#40;49&#41;=-0.28, p = __&#41;.
 
+<h4> Compare AOIs </h4>
+
 ```{r Hand AOI, echo=TRUE, message=FALSE, warning=FALSE}
 # Recode Predictions
-HP <- MOAP %>%
+HP <- filtered %>%
   filter(Hand_Prediction != "No Prediction")%>%
   select(ID, Trial_Num, Hand_Prediction, Hand_Latency, FamTrialLength_ms, Fam_Screen)%>%
   na.omit()%>%
   mutate(Prediction = ifelse(Hand_Prediction == "Distracter", 0, 1))%>%
-  group_by(ID)
-df <- tibble(mean(HP$Prediction), sd(HP$Prediction))
-colnames(df)[1] <- "Mean"
-colnames(df)[2] <- "SD"
-output <- t.test(HP$Prediction, mu=.5)
-pander(df)
-pander(output)
-```
-
-```{r Body AOI, echo=TRUE, message=FALSE, warning=FALSE}
-# Recode Predictions
-BP <- MOAP %>%
+  select(Prediction)
+BP <- filtered %>%
   filter(Body_Prediction != "No Prediction")%>%
   select(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%>%
   na.omit()%>%
   mutate(Prediction = ifelse(Body_Prediction == "Distracter", 0, 1))%>%
-  group_by(ID)
-df1 <- tibble(mean(BP$Prediction), sd(BP$Prediction))
-colnames(df1)[1] <- "Mean"
-colnames(df1)[2] <- "SD"
-pander(df1)
-output1 <- t.test(BP$Prediction, mu=.5)
-pander(output1)
+  select(Prediction)
+
+tests <- list()
+tests[[1]] <- t.test(HP$Prediction, mu=.5)
+tests[[2]] <- t.test(BP$Prediction, mu=.5)
+
+# repeat for all tests
+# there are probably faster ways than doing all of that by hand
+
+# extract your values using `sapply`
+# extract your values using `sapply`
+df <- sapply(tests, function(x) {
+      c(x$statistic,
+        x$parameter,
+        Mean = x$estimate[1],
+       ci.lower = x$conf.int[1],
+       ci.upper = x$conf.int[2],
+       p.value = x$p.value)
+    })
+colnames(df)<- c("Hand", "Body")
+kable(t(df))
 ```
+
 
 <h3> Question #2 </h3>
 Does latency vary between type of prediction?  

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Jordan Martin" />
 
-<meta name="date" content="2016-12-04" />
+<meta name="date" content="2016-12-07" />
 
 <title>TITLE</title>
 
@@ -199,7 +199,7 @@ $(document).ready(function () {
 </style>
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
+  window.initializeCodeFolding("show" === "show");
 });
 </script>
 
@@ -343,7 +343,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">TITLE</h1>
 <h4 class="author"><em>Jordan Martin</em></h4>
-<h4 class="date"><em>2016-12-04</em></h4>
+<h4 class="date"><em>2016-12-07</em></h4>
 
 </div>
 
@@ -355,6 +355,14 @@ Method
 Eye-tracking Paradigm
 </h3>
 <p>Eighteen-month-old infants were shown an eye-tracking paradigm… Familiarization videos showed an agent reaching for and grasping one of two toys. Four different agents and toy-pairs were shown. Test trials were shown twice, each after familiarization, for a total of 8 Test Trials.</p>
+<div class="figure">
+<img src="images/hand.png" alt="Hand AOI" />
+<p class="caption">Hand AOI</p>
+</div>
+<div class="figure">
+<img src="images/body.png" alt="Body AOI" />
+<p class="caption">Body AOI</p>
+</div>
 <h3>
 <a href="Tidying.html">Data Reduction</a>
 </h3>
@@ -367,138 +375,189 @@ MOAP &lt;-<span class="st"> </span><span class="kw">drop_na</span>(MOAP, Hand_Pr
 <h3>
 Exclusions
 </h3>
-<p>A total of 12 infants were excluded from analysis do to low calibration (n = 4), fussiness (n = 2), and sample rate &lt; 50% (n = 6).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">MOAP &lt;-<span class="st"> </span>MOAP %&gt;%
-<span class="st">  </span><span class="kw">filter</span>(ID !=<span class="st"> &quot;M08&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M11&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M14&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M17&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M18&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M25&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M26&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M27&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M30&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M31&quot;</span>  &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M32&quot;</span>  &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M33&quot;</span>)</code></pre></div>
+<p>A total of 12 infants were excluded from analysis due to low calibration (n = 4), fussiness (n = 2), and sample rate &lt; 50% (n = 6).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">filtered &lt;-<span class="st"> </span>MOAP %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(ID !=<span class="st"> &quot;M08&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M11&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M14&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M17&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M18&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M25&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M26&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M27&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M30&quot;</span> &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M31&quot;</span>  &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M32&quot;</span>  &amp;<span class="st"> </span>ID !=<span class="st"> &quot;M33&quot;</span>)
+
+ValidTrials &lt;-<span class="st"> </span>filtered %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">n =</span> <span class="kw">n</span>())
+
+<span class="kw">kable</span>(ValidTrials,
+      <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;Total&quot;</span>),
+      <span class="dt">caption =</span> <span class="st">&quot;Number of Valid Trials&quot;</span>)</code></pre></div>
+<table>
+<caption>Number of Valid Trials</caption>
+<thead>
+<tr class="header">
+<th align="right">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">130</td>
+</tr>
+</tbody>
+</table>
 <h2>
-Results
+Analysis
 </h2>
 <h3>
-Demographics
+Summary
 </h3>
+<h4>
+Hand AOI
+</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">HandSummary &lt;-<span class="st"> </span>filtered %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(Hand_Prediction)%&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">n =</span> <span class="kw">n</span>())
+
+<span class="kw">kable</span>(HandSummary,
+      <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;Prediction Type&quot;</span>, <span class="st">&quot;Num Predictions&quot;</span>),
+      <span class="dt">caption =</span> <span class="st">&quot;Number of Predictions from Hand AOI&quot;</span>)</code></pre></div>
+<table>
+<caption>Number of Predictions from Hand AOI</caption>
+<thead>
+<tr class="header">
+<th align="left">Prediction Type</th>
+<th align="right">Num Predictions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Distracter</td>
+<td align="right">28</td>
+</tr>
+<tr class="even">
+<td align="left">Goal</td>
+<td align="right">27</td>
+</tr>
+<tr class="odd">
+<td align="left">No Prediction</td>
+<td align="right">75</td>
+</tr>
+</tbody>
+</table>
+<h4>
+Body AOI
+</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">BodySummary &lt;-<span class="st"> </span>filtered %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(Body_Prediction)%&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">n =</span> <span class="kw">n</span>())
+
+<span class="kw">kable</span>(BodySummary,
+      <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;Prediction Type&quot;</span>, <span class="st">&quot;Num Predictions&quot;</span>),
+      <span class="dt">caption =</span> <span class="st">&quot;Number of Predictions from Body AOI&quot;</span>)</code></pre></div>
+<table>
+<caption>Number of Predictions from Body AOI</caption>
+<thead>
+<tr class="header">
+<th align="left">Prediction Type</th>
+<th align="right">Num Predictions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Distracter</td>
+<td align="right">39</td>
+</tr>
+<tr class="even">
+<td align="left">Goal</td>
+<td align="right">56</td>
+</tr>
+<tr class="odd">
+<td align="left">No Prediction</td>
+<td align="right">35</td>
+</tr>
+</tbody>
+</table>
 <h3>
 Question #1
 </h3>
 <p>Does varying initial fixation AOI from hand to body change prediction response?</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Graph Proportion of Predictions for each initial AOI</span>
-Hand_Pred &lt;-<span class="st"> </span><span class="kw">ggplot</span>(MOAP) +
-<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">x =</span> Hand_Prediction, <span class="dt">y =</span> ..prop.., <span class="dt">group =</span> <span class="dv">1</span>)) +
-<span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;From Hand&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Prediction&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Proportion of Predictive Fixations&quot;</span>)
-Body_Pred &lt;-<span class="st"> </span><span class="kw">ggplot</span>(MOAP) +
-<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">x =</span> Body_Prediction, <span class="dt">y =</span> ..prop.., <span class="dt">group =</span> <span class="dv">1</span>)) +
-<span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;From Body&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Prediction&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Proportion of Predictive Fixations&quot;</span>)
-<span class="kw">grid.arrange</span>(Hand_Pred, Body_Pred, <span class="dt">nrow=</span><span class="dv">1</span>)</code></pre></div>
+HandProp &lt;-<span class="st"> </span>HandSummary %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">AOI =</span> <span class="st">&quot;Hand&quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">rename</span>(<span class="dt">Prediction =</span> Hand_Prediction)
+BodyProp &lt;-<span class="st"> </span>BodySummary %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">AOI =</span> <span class="st">&quot;Body&quot;</span>)%&gt;%
+<span class="st">  </span><span class="kw">rename</span>(<span class="dt">Prediction =</span> Body_Prediction)
+AOIProp &lt;-<span class="st"> </span><span class="kw">rbind</span>(HandProp, BodyProp)%&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(AOI)%&gt;%
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">prop =</span> <span class="kw">prop.table</span>(n))
+
+<span class="kw">ggplot</span>(AOIProp,
+       <span class="kw">aes</span>(<span class="dt">x=</span>Prediction, <span class="dt">y=</span>prop, <span class="dt">fill=</span>AOI)) +
+<span class="st">  </span><span class="kw">facet_grid</span>(. ~<span class="st"> </span>AOI) +
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&#39;identity&#39;</span>, <span class="dt">position =</span> <span class="st">&#39;dodge&#39;</span>)+
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Predictions by AOI&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Prediction&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Proportion of Predictive Fixations&quot;</span>)</code></pre></div>
 <p><img src="Stats_files/figure-html/Prediction%20Proportions-1.png" width="672" /></p>
 <p>The graphs indicate that more predictions are revealed by an anlysis of fixations originating from the body than the hand.Planned comparisons against chance (.5) revealed that when using the Body definition, infants launched predictive fixations systematically to the prior goal. (M=<strong>, SD=</strong>, t(<strong>)=</strong>, p = (<strong>), whereas when using the Hand definition, infants responded at chance levels (M=0.48, SD=.50, t(49)=-0.28, p = </strong>).</p>
+<h4>
+Compare AOIs
+</h4>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Recode Predictions</span>
-HP &lt;-<span class="st"> </span>MOAP %&gt;%
+HP &lt;-<span class="st"> </span>filtered %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(Hand_Prediction !=<span class="st"> &quot;No Prediction&quot;</span>)%&gt;%
 <span class="st">  </span><span class="kw">select</span>(ID, Trial_Num, Hand_Prediction, Hand_Latency, FamTrialLength_ms, Fam_Screen)%&gt;%
 <span class="st">  </span><span class="kw">na.omit</span>()%&gt;%
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Prediction =</span> <span class="kw">ifelse</span>(Hand_Prediction ==<span class="st"> &quot;Distracter&quot;</span>, <span class="dv">0</span>, <span class="dv">1</span>))%&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(ID)
-df &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="kw">mean</span>(HP$Prediction), <span class="kw">sd</span>(HP$Prediction))
-<span class="kw">colnames</span>(df)[<span class="dv">1</span>] &lt;-<span class="st"> &quot;Mean&quot;</span>
-<span class="kw">colnames</span>(df)[<span class="dv">2</span>] &lt;-<span class="st"> &quot;SD&quot;</span>
-output &lt;-<span class="st"> </span><span class="kw">t.test</span>(HP$Prediction, <span class="dt">mu=</span>.<span class="dv">5</span>)
-<span class="kw">pander</span>(df)</code></pre></div>
-<table style="width:21%;">
-<colgroup>
-<col width="9%" />
-<col width="11%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">Mean</th>
-<th align="center">SD</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">0.48</td>
-<td align="center">0.504672</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pander</span>(output)</code></pre></div>
-<table style="width:78%;">
-<caption>One Sample t-test: <code>HP$Prediction</code></caption>
-<colgroup>
-<col width="23%" />
-<col width="6%" />
-<col width="13%" />
-<col width="33%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">Test statistic</th>
-<th align="center">df</th>
-<th align="center">P value</th>
-<th align="center">Alternative hypothesis</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">-0.2802</td>
-<td align="center">49</td>
-<td align="center">0.7805</td>
-<td align="center">two.sided</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Recode Predictions</span>
-BP &lt;-<span class="st"> </span>MOAP %&gt;%
+<span class="st">  </span><span class="kw">select</span>(Prediction)
+BP &lt;-<span class="st"> </span>filtered %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(Body_Prediction !=<span class="st"> &quot;No Prediction&quot;</span>)%&gt;%
 <span class="st">  </span><span class="kw">select</span>(ID, Trial_Num, Body_Prediction, Body_Latency, FamTrialLength_ms, Fam_Screen)%&gt;%
 <span class="st">  </span><span class="kw">na.omit</span>()%&gt;%
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Prediction =</span> <span class="kw">ifelse</span>(Body_Prediction ==<span class="st"> &quot;Distracter&quot;</span>, <span class="dv">0</span>, <span class="dv">1</span>))%&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(ID)
-df1 &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="kw">mean</span>(BP$Prediction), <span class="kw">sd</span>(BP$Prediction))
-<span class="kw">colnames</span>(df1)[<span class="dv">1</span>] &lt;-<span class="st"> &quot;Mean&quot;</span>
-<span class="kw">colnames</span>(df1)[<span class="dv">2</span>] &lt;-<span class="st"> &quot;SD&quot;</span>
-<span class="kw">pander</span>(df1)</code></pre></div>
-<table style="width:28%;">
-<colgroup>
-<col width="13%" />
-<col width="13%" />
-</colgroup>
+<span class="st">  </span><span class="kw">select</span>(Prediction)
+
+tests &lt;-<span class="st"> </span><span class="kw">list</span>()
+tests[[<span class="dv">1</span>]] &lt;-<span class="st"> </span><span class="kw">t.test</span>(HP$Prediction, <span class="dt">mu=</span>.<span class="dv">5</span>)
+tests[[<span class="dv">2</span>]] &lt;-<span class="st"> </span><span class="kw">t.test</span>(BP$Prediction, <span class="dt">mu=</span>.<span class="dv">5</span>)
+
+<span class="co"># repeat for all tests</span>
+<span class="co"># there are probably faster ways than doing all of that by hand</span>
+
+<span class="co"># extract your values using `sapply`</span>
+<span class="co"># extract your values using `sapply`</span>
+df &lt;-<span class="st"> </span><span class="kw">sapply</span>(tests, function(x) {
+      <span class="kw">c</span>(x$statistic,
+        x$parameter,
+        <span class="dt">Mean =</span> x$estimate[<span class="dv">1</span>],
+       <span class="dt">ci.lower =</span> x$conf.int[<span class="dv">1</span>],
+       <span class="dt">ci.upper =</span> x$conf.int[<span class="dv">2</span>],
+       <span class="dt">p.value =</span> x$p.value)
+    })
+<span class="kw">colnames</span>(df)&lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Hand&quot;</span>, <span class="st">&quot;Body&quot;</span>)
+<span class="kw">kable</span>(<span class="kw">t</span>(df))</code></pre></div>
+<table>
 <thead>
 <tr class="header">
-<th align="center">Mean</th>
-<th align="center">SD</th>
+<th></th>
+<th align="right">t</th>
+<th align="right">df</th>
+<th align="right">Mean.mean of x</th>
+<th align="right">ci.lower</th>
+<th align="right">ci.upper</th>
+<th align="right">p.value</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.6067416</td>
-<td align="center">0.491241</td>
+<td>Hand</td>
+<td align="right">-0.2802243</td>
+<td align="right">49</td>
+<td align="right">0.4800000</td>
+<td align="right">0.3365738</td>
+<td align="right">0.6234262</td>
+<td align="right">0.7804851</td>
 </tr>
-</tbody>
-</table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">output1 &lt;-<span class="st"> </span><span class="kw">t.test</span>(BP$Prediction, <span class="dt">mu=</span>.<span class="dv">5</span>)
-<span class="kw">pander</span>(output1)</code></pre></div>
-<table style="width:78%;">
-<caption>One Sample t-test: <code>BP$Prediction</code></caption>
-<colgroup>
-<col width="23%" />
-<col width="6%" />
-<col width="13%" />
-<col width="33%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">Test statistic</th>
-<th align="center">df</th>
-<th align="center">P value</th>
-<th align="center">Alternative hypothesis</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">2.05</td>
-<td align="center">88</td>
-<td align="center">0.04335 *</td>
-<td align="center">two.sided</td>
+<tr class="even">
+<td>Body</td>
+<td align="right">2.0499064</td>
+<td align="right">88</td>
+<td align="right">0.6067416</td>
+<td align="right">0.5032605</td>
+<td align="right">0.7102226</td>
+<td align="right">0.0433499</td>
 </tr>
 </tbody>
 </table>
