@@ -1,5 +1,6 @@
 ---
 title: "Overview"
+author: "Jordan Martin"
 ---
 <center>
 ## Infant Social Attention During Goal-Directed Action
